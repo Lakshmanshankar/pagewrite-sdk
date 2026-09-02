@@ -1,4 +1,6 @@
 ---
+import "../styles/docs.css";
+
 interface Heading {
   depth: number;
   slug: string;
@@ -13,46 +15,53 @@ const { headings = [] } = Astro.props;
 
 const filteredHeadings = headings.filter((h) => h.depth === 1 || h.depth === 2 || h.depth === 3);
 ---
-<nav class="toc-container hidden xl:block w-72 shrink-0 py-6 pl-2 pr-4 space-y-3.5 sticky top-14 self-start max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-  {filteredHeadings.length > 0 && (
-    <>
-      <h5 class="text-[10px] font-bold text-text-muted uppercase tracking-wider pl-1">
-        On this page
-      </h5>
-      <ul class="relative text-sm text-text-main border-l border-border-line" id="toc-list">
-        <div id="toc-snake" class="absolute -left-px w-0.5 bg-primary-500 transition-all duration-300 ease-out z-10 rounded-full" style="opacity: 0; top: 0; height: 0;"></div>
-        {filteredHeadings.map((heading) => (
-          <li>
-            <a
-              href={`#${heading.slug}`}
-              data-slug={heading.slug}
-              class={`toc-link block py-1.5 hover:text-text-title transition-colors leading-normal ${
-                heading.depth === 1 ? "pl-3 font-medium" : 
-                heading.depth === 2 ? "pl-5" : 
-              "pl-8 text-sm" 
-              }`}
-            >
-              {heading.text}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
+
+<nav class="toc-container">
+  {
+    filteredHeadings.length > 0 && (
+      <>
+        <h5 class="toc-heading">On this page</h5>
+        <ul class="toc-list" id="toc-list">
+          <div id="toc-snake" class="toc-snake" style="opacity: 0; top: 0; height: 0;" />
+          {filteredHeadings.map((heading) => (
+            <li>
+              <a
+                href={`#${heading.slug}`}
+                data-slug={heading.slug}
+                class={`toc-link ${
+                  heading.depth === 1
+                    ? "toc-depth-1"
+                    : heading.depth === 2
+                      ? "toc-depth-2"
+                      : "toc-depth-3"
+                }`}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
 </nav>
 
 <script>
   function initTOC() {
-    const tocList = document.getElementById('toc-list');
-    const snake = document.getElementById('toc-snake');
+    const tocList = document.getElementById("toc-list");
+    const snake = document.getElementById("toc-snake");
     if (!tocList || !snake) return;
 
-    const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
-    const headings = Array.from(document.querySelectorAll('article h1, article h2, article h3, article h4, article h5, article h6'));
-    
+    const tocLinks = Array.from(document.querySelectorAll(".toc-link"));
+    const headings = Array.from(
+      document.querySelectorAll(
+        "article h1, article h2, article h3, article h4, article h5, article h6"
+      )
+    );
+
     const linkMap = new Map();
     tocLinks.forEach((link, idx) => {
-      const slug = link.getAttribute('data-slug');
+      const slug = link.getAttribute("data-slug");
       if (slug) linkMap.set(slug, { link, index: idx });
     });
 
@@ -60,107 +69,117 @@ const filteredHeadings = headings.filter((h) => h.depth === 1 || h.depth === 2 |
 
     function updateSnake() {
       let indices = Array.from(visibleHeadings)
-        .map(slug => linkMap.get(slug)?.index)
-        .filter(i => i !== undefined);
-      
+        .map((slug) => linkMap.get(slug)?.index)
+        .filter((i) => i !== undefined);
+
       if (indices.length === 0) {
         let closestIndex = 0;
         let minDistance = Infinity;
-        headings.forEach(h => {
+        headings.forEach((h) => {
           if (!h.id || !linkMap.has(h.id)) return;
           const rect = h.getBoundingClientRect();
-          if (rect.top < 150) { 
-             const distance = 150 - rect.top;
-             if (distance < minDistance) {
-               minDistance = distance;
-               closestIndex = linkMap.get(h.id).index;
-             }
+          if (rect.top < 150) {
+            const distance = 150 - rect.top;
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestIndex = linkMap.get(h.id).index;
+            }
           }
         });
         indices = [closestIndex];
       }
-      
+
       indices.sort((a, b) => a - b);
       const minIndex = indices[0];
       const maxIndex = indices[indices.length - 1];
-      
+
       const firstLink = tocLinks[minIndex];
       const lastLink = tocLinks[maxIndex];
-      
+
       if (firstLink && lastLink) {
         const firstLi = firstLink.parentElement;
         const lastLi = lastLink.parentElement;
-        
+
         const top = firstLi.offsetTop;
         const bottom = lastLi.offsetTop + lastLi.offsetHeight;
-        
+
         snake.style.top = `${top}px`;
         snake.style.height = `${bottom - top}px`;
-        snake.style.opacity = '1';
-        
+        snake.style.opacity = "1";
+
         tocLinks.forEach((link, idx) => {
           if (idx >= minIndex && idx <= maxIndex) {
-            link.classList.add('text-primary-400');
-            link.classList.remove('text-text-main');
+            link.classList.add("active");
           } else {
-            link.classList.remove('text-primary-400');
-            const isH3 = link.classList.contains('pl-8');
-            link.classList.add('text-text-main');
+            link.classList.remove("active");
           }
         });
 
         // Auto-scroll the TOC container if the active headings are out of view
-        const tocContainer = document.querySelector('.toc-container');
+        const tocContainer = document.querySelector(".toc-container");
         if (tocContainer && tocContainer.scrollHeight > tocContainer.clientHeight) {
           const containerRect = tocContainer.getBoundingClientRect();
           const firstRect = firstLi.getBoundingClientRect();
           const lastRect = lastLi.getBoundingClientRect();
-          
+
           if (firstRect.top < containerRect.top + 20) {
-            tocContainer.scrollBy({ top: firstRect.top - containerRect.top - 40, behavior: 'smooth' });
+            tocContainer.scrollBy({
+              top: firstRect.top - containerRect.top - 40,
+              behavior: "smooth",
+            });
           } else if (lastRect.bottom > containerRect.bottom - 20) {
-            tocContainer.scrollBy({ top: lastRect.bottom - containerRect.bottom + 40, behavior: 'smooth' });
+            tocContainer.scrollBy({
+              top: lastRect.bottom - containerRect.bottom + 40,
+              behavior: "smooth",
+            });
           }
         }
       }
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      let changed = false;
-      entries.forEach(entry => {
-        const id = entry.target.id;
-        if (!id || !linkMap.has(id)) return;
-        
-        if (entry.isIntersecting) {
-          visibleHeadings.add(id);
-          changed = true;
-        } else {
-          visibleHeadings.delete(id);
-          changed = true;
-        }
-      });
-      if (changed) {
-        updateSnake();
-      }
-    }, {
-      rootMargin: '-80px 0px -20% 0px',
-      threshold: 0
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let changed = false;
+        entries.forEach((entry) => {
+          const id = entry.target.id;
+          if (!id || !linkMap.has(id)) return;
 
-    headings.forEach(heading => observer.observe(heading));
-    
-    let scrollTimeout;
-    window.addEventListener('scroll', () => {
-      if (!scrollTimeout) {
-        scrollTimeout = setTimeout(() => {
+          if (entry.isIntersecting) {
+            visibleHeadings.add(id);
+            changed = true;
+          } else {
+            visibleHeadings.delete(id);
+            changed = true;
+          }
+        });
+        if (changed) {
           updateSnake();
-          scrollTimeout = null;
-        }, 50);
+        }
+      },
+      {
+        rootMargin: "-80px 0px -20% 0px",
+        threshold: 0,
       }
-    }, { passive: true });
-    
+    );
+
+    headings.forEach((heading) => observer.observe(heading));
+
+    let scrollTimeout;
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!scrollTimeout) {
+          scrollTimeout = setTimeout(() => {
+            updateSnake();
+            scrollTimeout = null;
+          }, 50);
+        }
+      },
+      { passive: true }
+    );
+
     setTimeout(updateSnake, 100);
   }
 
-  document.addEventListener('astro:page-load', initTOC);
+  document.addEventListener("astro:page-load", initTOC);
 </script>

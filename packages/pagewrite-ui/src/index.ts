@@ -1,3 +1,4 @@
-// Export all UI components and utilities here
-export { default as Header } from "./components/Header.astro";
-export { default as Card } from "./components/Card.astro";
+export * from "./components/index.js";
+export * from "./docs/index.js";
+export * from "./mdx/index.js";
+export * from "./icons/index.js";

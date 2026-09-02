@@ -1,0 +1,85 @@
+---
+export interface FooterLink {
+  label: string;
+  href: string;
+}
+
+export interface Props {
+  logo?: {
+    light: string;
+    dark?: string;
+    alt?: string;
+  };
+  siteTitle?: string;
+  description?: string;
+  copyright?: string;
+  links?: FooterLink[];
+  legalLinks?: FooterLink[];
+}
+
+const {
+  logo,
+  siteTitle = "Site Logo",
+  description,
+  copyright = "Your Company, Inc.",
+  links = [],
+  legalLinks = [],
+} = Astro.props;
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t border-border-line mt-20 py-8 md:py-12">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="flex flex-col space-y-3 text-center md:text-left items-center md:items-start">
+      <a href="/" class="block">
+        {
+          logo ? (
+            <>
+              <img
+                src={logo.light}
+                alt={logo.alt || siteTitle}
+                class={`h-7 w-auto ${logo.dark ? "light-logo" : ""}`}
+              />
+              {logo.dark && (
+                <img src={logo.dark} alt={logo.alt || siteTitle} class="h-7 w-auto dark-logo" />
+              )}
+            </>
+          ) : (
+            <span class="text-xl font-bold">{siteTitle}</span>
+          )
+        }
+      </a>
+      {description && <p class="text-sm text-text-muted">{description}</p>}
+    </div>
+
+    {
+      links.length > 0 && (
+        <div class="flex items-center space-x-6 text-sm font-medium text-text-muted">
+          {links.map((link) => (
+            <a href={link.href} class="hover:text-text-title transition-interactive">
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  <div
+    class="mt-8 pt-8 border-t border-border-line/50 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-text-muted"
+  >
+    <p>&copy; {currentYear} {copyright}</p>
+    {
+      legalLinks.length > 0 && (
+        <div class="flex space-x-4">
+          {legalLinks.map((link) => (
+            <a href={link.href} class="hover:text-text-title transition-interactive">
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</footer>

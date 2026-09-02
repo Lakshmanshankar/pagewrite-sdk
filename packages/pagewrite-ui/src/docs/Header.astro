@@ -1,0 +1,60 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string | string[];
+  image?: string;
+  canonicalURL?: URL | string;
+  noindex?: boolean;
+  nofollow?: boolean;
+  type?: string;
+}
+
+const {
+  title = "Default Title",
+  description,
+  keywords,
+  image,
+  canonicalURL,
+  noindex = false,
+  nofollow = false,
+  type = "website",
+} = Astro.props;
+
+const robots = [noindex ? "noindex" : "index", nofollow ? "nofollow" : "follow"].join(", ");
+const formattedKeywords = Array.isArray(keywords) ? keywords.join(", ") : keywords;
+---
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+{description && <meta name="description" content={description} />}
+{formattedKeywords && <meta name="keywords" content={formattedKeywords} />}
+
+<!-- SEO Indexing -->
+<meta name="robots" content={robots} />
+<meta name="googlebot" content={robots} />
+
+<!-- Canonical URL -->
+{canonicalURL && <link rel="canonical" href={canonicalURL.toString()} />}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+{canonicalURL && <meta property="og:url" content={canonicalURL.toString()} />}
+<meta property="og:title" content={title} />
+{description && <meta property="og:description" content={description} />}
+{image && <meta property="og:image" content={new URL(image, Astro.url).toString()} />}
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+{canonicalURL && <meta property="twitter:url" content={canonicalURL.toString()} />}
+<meta property="twitter:title" content={title} />
+{description && <meta property="twitter:description" content={description} />}
+{image && <meta property="twitter:image" content={new URL(image, Astro.url).toString()} />}
+
+<slot />

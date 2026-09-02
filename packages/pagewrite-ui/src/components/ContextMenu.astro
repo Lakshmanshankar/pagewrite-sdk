@@ -1,0 +1,162 @@
+---
+import ChatGPT from "../icons/ChatGPT.astro";
+import Claude from "../icons/Claude.astro";
+import Gemini from "../icons/Gemini.astro";
+import Markdown from "../icons/Markdown.astro";
+
+const aiOptions = [
+  {
+    id: "chatgpt",
+    label: "Open in ChatGPT",
+    Icon: ChatGPT,
+    url: "https://chatgpt.com/?prompt={prompt}&hints=search",
+  },
+  { id: "claude", label: "Open in Claude", Icon: Claude, url: "https://claude.ai/new?q={prompt}" },
+  {
+    id: "gemini",
+    label: "Open in Gemini",
+    Icon: Gemini,
+    url: "https://gemini.google.com/app?q={prompt}",
+  },
+];
+---
+
+<div class="relative inline-block text-left" id="page-actions-dropdown">
+  <button
+    id="page-actions-trigger"
+    class="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md border border-border-line hover:bg-bg-card text-text-muted hover:text-text-title transition-colors text-xs font-medium cursor-pointer shadow-xs"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      ><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg
+    >
+    <span>AI Actions</span>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="ml-1 opacity-60"><path d="m6 9 6 6 6-6"></path></svg
+    >
+  </button>
+
+  <div
+    id="page-actions-menu"
+    class="hidden absolute right-0 mt-2 w-48 rounded-lg border border-border-line bg-bg-sidebar shadow-lg p-1 z-50 origin-top-right transition-all transform opacity-0 scale-95"
+  >
+    <button
+      id="copy-markdown-btn"
+      class="w-full text-left flex items-center px-3 py-2 text-xs text-text-muted hover:text-text-title hover:bg-bg-card rounded-md transition-colors cursor-pointer group"
+    >
+      <Markdown class="w-4 h-4 mr-2.5 opacity-70 group-hover:opacity-100" />
+      <span>Copy Markdown</span>
+    </button>
+
+    <div class="h-px w-full bg-border-line/50 my-1"></div>
+
+    {
+      aiOptions.map(({ label, Icon, url }) => (
+        <button
+          class="ai-action-btn w-full text-left flex items-center px-3 py-2 text-xs text-text-muted hover:text-text-title hover:bg-bg-card rounded-md transition-colors cursor-pointer group"
+          data-url={url}
+        >
+          <Icon class="w-4 h-4 mr-2.5 opacity-70 group-hover:opacity-100" />
+          <span>{label}</span>
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  function initPageActions() {
+    const trigger = document.getElementById("page-actions-trigger");
+    const menu = document.getElementById("page-actions-menu");
+
+    if (!trigger || !menu) return;
+
+    let isOpen = false;
+    const toggleMenu = (force?: boolean) => {
+      isOpen = force !== undefined ? force : !isOpen;
+      trigger.setAttribute("aria-expanded", String(isOpen));
+
+      if (isOpen) {
+        menu.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          menu.classList.remove("opacity-0", "scale-95");
+          menu.classList.add("opacity-100", "scale-100");
+        });
+      } else {
+        menu.classList.remove("opacity-100", "scale-100");
+        menu.classList.add("opacity-0", "scale-95");
+        setTimeout(() => !isOpen && menu.classList.add("hidden"), 150);
+      }
+    };
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (isOpen && !menu.contains(e.target as Node)) toggleMenu(false);
+    });
+
+    // Copy Markdown
+    const copyBtn = document.getElementById("copy-markdown-btn");
+    if (copyBtn) {
+      const origHtml = copyBtn.innerHTML;
+      copyBtn.addEventListener("click", async () => {
+        try {
+          const res = await fetch("/search-index.json");
+          const data = await res.json();
+          const slug = window.location.pathname.replace(/\/$/, "").replace(/^\//, "");
+          const doc = data.find((d: any) => d.slug === slug || (slug === "" && d.slug === ""));
+
+          await navigator.clipboard.writeText(doc?.content || "No markdown content found.");
+          copyBtn.innerHTML = `<span class="text-emerald-500 flex items-center"><svg class="w-4 h-4 mr-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Copied!</span>`;
+        } catch {
+          copyBtn.innerHTML = `<span class="text-red-500 flex items-center">Failed</span>`;
+        }
+        setTimeout(() => {
+          if (document.body.contains(copyBtn)) {
+            copyBtn.innerHTML = origHtml;
+            toggleMenu(false);
+          }
+        }, 2000);
+      });
+    }
+
+    // AI Prompts
+    const prompt = encodeURIComponent(
+      `Read ${window.location.href}, I want to ask questions about it.`
+    );
+
+    document.querySelectorAll(".ai-action-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const urlTemplate = btn.getAttribute("data-url");
+        if (urlTemplate) {
+          window.open(urlTemplate.replace("{prompt}", prompt), "_blank");
+          toggleMenu(false);
+        }
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initPageActions);
+</script>
