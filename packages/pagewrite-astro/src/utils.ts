@@ -82,7 +82,12 @@ export function toSlug(relativePath: string): string {
     .join("/");
 }
 
-export function upsertFrontmatter(content: string, title: string, slug: string, id?: string): string {
+export function upsertFrontmatter(
+  content: string,
+  title: string,
+  slug: string,
+  id?: string
+): string {
   const normalizedContent = content.replace(/^\uFEFF/, "");
   const titleLine = `title: ${quoteYamlString(title)}`;
   const slugLine = `slug: ${quoteYamlString(slug)}`;
@@ -107,7 +112,10 @@ export function upsertFrontmatter(content: string, title: string, slug: string, 
   const body = normalizedContent.slice(bodyStart);
   const remainingLines = existingFrontmatter
     .split("\n")
-    .filter((line) => !/^title\s*:/.test(line) && !/^slug\s*:/.test(line) && (id ? !/^id\s*:/.test(line) : true))
+    .filter(
+      (line) =>
+        !/^title\s*:/.test(line) && !/^slug\s*:/.test(line) && (id ? !/^id\s*:/.test(line) : true)
+    )
     .filter((line, index, lines) => line.trim() !== "" || index < lines.length - 1);
   const nextFrontmatter = [...lines, ...remainingLines].join("\n").trim();
 

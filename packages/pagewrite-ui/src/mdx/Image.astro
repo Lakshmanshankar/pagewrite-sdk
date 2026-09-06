@@ -1,0 +1,123 @@
+---
+interface Props {
+  src: string;
+  darkModeSrc?: string;
+  altText?: string;
+  caption?: string;
+  width?: number | string;
+  height?: number | string;
+  maxWidth?: number | string;
+  alignment?: "left" | "center" | "right";
+  class?: string;
+}
+
+const {
+  src,
+  darkModeSrc,
+  altText = "",
+  caption = "",
+  width,
+  height,
+  maxWidth = "100%",
+  alignment = "center",
+  class: className = "",
+} = Astro.props;
+
+const alignmentClass =
+  alignment === "left" ? "justify-start" : alignment === "right" ? "justify-end" : "justify-center";
+
+const imageStyle: Record<string, string> = {};
+if (maxWidth) imageStyle.maxWidth = typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth;
+if (width) imageStyle.width = typeof width === "number" ? `${width}px` : width;
+if (height) imageStyle.height = typeof height === "number" ? `${height}px` : height;
+---
+
+<div
+  class={`img-container flex ${alignmentClass} ${className}`.trim()}
+  data-has-dark-mode={darkModeSrc ? "true" : "false"}
+>
+  <figure class="img-figure">
+    <div class="img-frame">
+      <img
+        src={src}
+        alt={altText}
+        data-theme="light"
+        class="img-theme-image"
+        style={imageStyle}
+        width={typeof width === "number" ? width : undefined}
+        height={typeof height === "number" ? height : undefined}
+        loading="lazy"
+      />
+      {
+        darkModeSrc && (
+          <img
+            src={darkModeSrc}
+            alt={altText}
+            data-theme="dark"
+            class="img-theme-image"
+            style={imageStyle}
+            width={typeof width === "number" ? width : undefined}
+            height={typeof height === "number" ? height : undefined}
+            loading="lazy"
+          />
+        )
+      }
+    </div>
+    {caption && <figcaption class="img-caption">{caption}</figcaption>}
+  </figure>
+</div>
+
+<style>
+  .img-container {
+    margin: 2rem 0;
+  }
+
+  .img-figure {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .img-frame {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--accent) 12%, transparent),
+        transparent 36%
+      ),
+      var(--panel-bg-strong);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .img-theme-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .img-theme-image[data-theme="dark"] {
+    display: none;
+  }
+
+  :global(html:not(.light)) .img-theme-image[data-theme="light"] {
+    display: none;
+  }
+
+  :global(html:not(.light)) .img-theme-image[data-theme="dark"] {
+    display: block;
+  }
+
+  [data-has-dark-mode="false"] .img-theme-image[data-theme="light"] {
+    display: block !important;
+  }
+
+  .img-caption {
+    margin-top: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-align: center;
+  }
+</style>

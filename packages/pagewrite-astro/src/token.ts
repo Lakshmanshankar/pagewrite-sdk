@@ -4,7 +4,7 @@ export const DEFAULT_TOKEN_ENV_VAR = "REMOTE_MDX_TOKEN";
 
 export function resolveToken(
   options: RemoteMdxOptions,
-  env?: Record<string, string | undefined> | string,
+  env?: Record<string, string | undefined> | string
 ): string {
   if (options.token?.trim()) {
     return options.token.trim();
@@ -30,6 +30,6 @@ export function resolveToken(
   }
 
   throw new Error(
-    `[pagewrite:astro] Build token not found. Set ${envVar} or pass token in the integration options.`,
+    `[pagewrite:astro] Build token not found. Set ${envVar} or pass token in the integration options.`
   );
 }

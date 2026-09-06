@@ -11,10 +11,7 @@ interface MdxFileRecord {
   size: number;
 }
 
-async function getFilesForToken(
-  token: string,
-  collections?: string[],
-): Promise<MdxFileRecord[]> {
+async function getFilesForToken(token: string, collections?: string[]): Promise<MdxFileRecord[]> {
   const allFiles: MdxFileRecord[] = [
     {
       path: "blog/hello-world.mdx",
@@ -57,7 +54,11 @@ export async function handleListFiles(request: Request): Promise<Response> {
   const files = await getFilesForToken(token, collections);
 
   return Response.json({
-    files: files.map(({ path, updatedAt, size }) => ({ path, updatedAt, size })),
+    files: files.map(({ path, updatedAt, size }) => ({
+      path,
+      updatedAt,
+      size,
+    })),
     total: files.length,
   });
 }

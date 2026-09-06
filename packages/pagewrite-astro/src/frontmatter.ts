@@ -46,7 +46,7 @@ export function buildMdxWithSchema(
     "pageStatus",
     "slug",
     "metaKeywords",
-    "metaTitle"
+    "metaTitle",
   ];
 
   for (const key of staticFields) {
@@ -58,7 +58,7 @@ export function buildMdxWithSchema(
   // Process schema fields
   for (const field of schema.fields) {
     const camelKey = toCamelCase(field.name);
-    
+
     // Look up by field.id for custom schema properties
     if (field.id in rawMetadata) {
       // Type coercion if necessary
@@ -66,11 +66,11 @@ export function buildMdxWithSchema(
       // Basic coercion placeholder (can be expanded based on exact field types)
       if (field.type === "date" || field.type === "date_range") {
         if (value && typeof value === "string") {
-            // Keep as string or parse date, YAML stringifier handles both nicely
+          // Keep as string or parse date, YAML stringifier handles both nicely
         }
       } else if (field.type === "multi_select") {
         if (Array.isArray(value)) {
-           // Array is fine, YAML stringifier handles it
+          // Array is fine, YAML stringifier handles it
         }
       }
       frontmatter[camelKey] = value;
@@ -86,6 +86,6 @@ export function buildMdxWithSchema(
 
   const yamlString = stringify(frontmatter);
   const mdxBody = extractBody(document.mdxString ?? "");
-  
+
   return `---\n${yamlString.trim()}\n---\n\n${mdxBody}`;
 }

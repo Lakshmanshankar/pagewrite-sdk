@@ -53,13 +53,13 @@ export default defineConfig({
 
 ## Options
 
-| Option | Type | Default | Description |
-| ------ | ---- | ------- | ----------- |
-| `siteId` | `string` | required | Pagewrite site to fetch and stage. |
-| `token` | `string` | required | Build token value. |
-| `outputDir` | `string` | `src/content/docs` | Directory where MDX files are written, relative to the Astro project root. |
-| `clean` | `boolean` | `false` | Remove `outputDir` before writing fetched files. |
-| `verbose` | `boolean` | `false` | Reserved for more detailed sync logging. |
+| Option      | Type      | Default            | Description                                                                |
+| ----------- | --------- | ------------------ | -------------------------------------------------------------------------- |
+| `siteId`    | `string`  | required           | Pagewrite site to fetch and stage.                                         |
+| `token`     | `string`  | required           | Build token value.                                                         |
+| `outputDir` | `string`  | `src/content/docs` | Directory where MDX files are written, relative to the Astro project root. |
+| `clean`     | `boolean` | `false`            | Remove `outputDir` before writing fetched files.                           |
+| `verbose`   | `boolean` | `false`            | Reserved for more detailed sync logging.                                   |
 
 ## Examples
 
@@ -80,8 +80,6 @@ pagewriteAstro({
   clean: true,
 });
 ```
-
-
 
 ## Ad-Hoc Fetching
 
@@ -118,11 +116,7 @@ See [CLI.md](./CLI.md) for the full command reference and CI examples.
 The package also exports the reusable content staging primitives:
 
 ```ts
-import {
-  fetchStaticFileTree,
-  fetchAllFileDocuments,
-  stageSiteContent,
-} from "pagewrite-astro";
+import { fetchStaticFileTree, fetchAllFileDocuments, stageSiteContent } from "pagewrite-astro";
 
 await stageSiteContent("your-site-id", "rmx_live_xxxxxxxxxxxx", "./content/docs");
 ```

@@ -1,4 +1,4 @@
-name: CI
+name: SDK CI
 
 on:
   pull_request:
@@ -30,10 +30,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm --filter pagewrite-astro typecheck
 
       - name: Test
-        run: pnpm test
+        run: pnpm --filter pagewrite-astro test
 
       - name: Build
-        run: pnpm build
+        run: pnpm --filter pagewrite-astro build

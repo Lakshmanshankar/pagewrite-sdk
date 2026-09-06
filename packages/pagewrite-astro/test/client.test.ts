@@ -44,7 +44,7 @@ describe("Pagewrite content fetching", () => {
             },
           ],
         },
-      }),
+      })
     ) as unknown as typeof fetch;
 
     const result = await fetchStaticFileTree("site-1", "token", { fetchImpl });
@@ -76,7 +76,7 @@ describe("Pagewrite content fetching", () => {
         method: "POST",
         body: JSON.stringify({ siteId: "site-1" }),
         headers: expect.objectContaining({ Authorization: "Bearer token" }),
-      }),
+      })
     );
   });
 
@@ -84,7 +84,10 @@ describe("Pagewrite content fetching", () => {
     const fetchImpl = vi
       .fn()
       .mockResolvedValueOnce(
-        jsonResponse({ documents: [{ id: "file-1", mdxString: "# One" }], nextPageToken: "next" }),
+        jsonResponse({
+          documents: [{ id: "file-1", mdxString: "# One" }],
+          nextPageToken: "next",
+        })
       )
       .mockResolvedValueOnce(jsonResponse({ documents: [{ id: "file-2", mdxString: "# Two" }] }));
 
@@ -98,15 +101,23 @@ describe("Pagewrite content fetching", () => {
       1,
       PAGINATED_FILE_DOCUMENTS_ENDPOINT,
       expect.objectContaining({
-        body: JSON.stringify({ siteId: "site-1", pageSize: 10, pageToken: null }),
-      }),
+        body: JSON.stringify({
+          siteId: "site-1",
+          pageSize: 10,
+          pageToken: null,
+        }),
+      })
     );
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
       PAGINATED_FILE_DOCUMENTS_ENDPOINT,
       expect.objectContaining({
-        body: JSON.stringify({ siteId: "site-1", pageSize: 10, pageToken: "next" }),
-      }),
+        body: JSON.stringify({
+          siteId: "site-1",
+          pageSize: 10,
+          pageToken: "next",
+        }),
+      })
     );
   });
 
@@ -126,10 +137,20 @@ describe("Pagewrite content fetching", () => {
         return jsonResponse({ schemas: [] });
       }
 
-      return jsonResponse({ documents: [{ id: "file-1", mdxString: "# Body", metadata: { pageStatus: "published" } }] });
+      return jsonResponse({
+        documents: [
+          {
+            id: "file-1",
+            mdxString: "# Body",
+            metadata: { pageStatus: "published" },
+          },
+        ],
+      });
     }) as unknown as typeof fetch;
 
-    const result = await stageSiteContent("site-1", "token", tmpDir, { fetchImpl });
+    const result = await stageSiteContent("site-1", "token", tmpDir, {
+      fetchImpl,
+    });
 
     expect(result.files).toEqual([
       {
@@ -139,7 +160,7 @@ describe("Pagewrite content fetching", () => {
       },
     ]);
     await expect(fs.readFile(path.join(tmpDir, "hello-world.mdx"), "utf8")).resolves.toBe(
-      '---\ntitle: "Hello World"\nslug: "hello-world"\nid: "file-1"\n---\n\n# Body',
+      '---\ntitle: "Hello World"\nslug: "hello-world"\nid: "file-1"\n---\n\n# Body'
     );
     await expect(fs.readFile(path.join(tmpDir, "pagemap.json"), "utf8")).resolves.toBe(
       JSON.stringify(
@@ -151,8 +172,8 @@ describe("Pagewrite content fetching", () => {
           },
         ],
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
@@ -160,7 +181,9 @@ describe("Pagewrite content fetching", () => {
     const fetchImpl = vi.fn(async () => new Response("bad token", { status: 401 }));
 
     await expect(
-      fetchStaticFileTree("site-1", "token", { fetchImpl: fetchImpl as unknown as typeof fetch }),
+      fetchStaticFileTree("site-1", "token", {
+        fetchImpl: fetchImpl as unknown as typeof fetch,
+      })
     ).rejects.toThrow("Failed to fetch static file tree: 401 - bad token");
   });
 
@@ -168,7 +191,9 @@ describe("Pagewrite content fetching", () => {
     const fetchImpl = vi.fn(async () => jsonResponse({ root: { id: "root", isFolder: false } }));
 
     await expect(
-      fetchStaticFileTree("site-1", "token", { fetchImpl: fetchImpl as unknown as typeof fetch }),
+      fetchStaticFileTree("site-1", "token", {
+        fetchImpl: fetchImpl as unknown as typeof fetch,
+      })
     ).rejects.toThrow("root folder is missing");
   });
 });

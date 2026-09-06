@@ -1,0 +1,130 @@
+---
+import {
+  Info,
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  CircleX,
+  Lightbulb,
+  MessageSquareText,
+} from "@lucide/astro";
+
+type IconComponent = typeof Info;
+type CalloutVariant = "info" | "note" | "success" | "warning" | "error" | "tip" | "custom";
+
+const VARIANTS: Record<CalloutVariant, { accent: string; icon: IconComponent }> = {
+  info: { accent: "#1f6feb", icon: Info },
+  note: { accent: "#44546f", icon: MessageSquareText },
+  success: { accent: "#216e4e", icon: CheckCircle2 },
+  warning: { accent: "#a15c00", icon: AlertTriangle },
+  error: { accent: "#c9372c", icon: CircleX },
+  tip: { accent: "#7f5af0", icon: Lightbulb },
+  custom: { accent: "#44546f", icon: AlertCircle },
+};
+
+interface Props {
+  variant?: CalloutVariant;
+  color?: string;
+  icon?: IconComponent;
+  title?: string;
+  class?: string;
+}
+
+const { variant = "info", color, icon, title, class: className = "" } = Astro.props;
+
+const base = VARIANTS[variant] ?? VARIANTS.info;
+const accent = color ?? base.accent;
+const { icon: Icon } = VARIANTS[variant] ?? VARIANTS.info;
+---
+
+<aside class={`callout ${className}`.trim()} style={`--callout-accent: ${accent};`}>
+  <div class="callout-icon-wrap" aria-hidden="true">
+    <Icon size={18} class="callout-icon" />
+  </div>
+
+  <div class="callout-content">
+    {title && <p class="callout-title">{title}</p>}
+    <div class="callout-body">
+      <slot />
+    </div>
+  </div>
+</aside>
+
+<style>
+  .callout {
+    --callout-border: color-mix(in srgb, var(--callout-accent) 24%, transparent);
+    --callout-bg: color-mix(in srgb, var(--callout-accent) 8%, transparent);
+    --callout-icon-bg: color-mix(in srgb, var(--callout-accent) 12%, transparent);
+
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.85rem;
+    margin: 1.25rem 0;
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--callout-border);
+    border-radius: 0.9rem;
+    background: var(--callout-bg);
+  }
+
+  :global(html:not(.light)) .callout {
+    --callout-border: color-mix(in srgb, var(--callout-accent) 30%, rgba(255, 255, 255, 0.08));
+    --callout-bg: color-mix(in srgb, var(--callout-accent) 10%, rgba(255, 255, 255, 0.03));
+    --callout-icon-bg: color-mix(in srgb, var(--callout-accent) 16%, rgba(255, 255, 255, 0.05));
+  }
+
+  .callout-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.05rem;
+    border-radius: 999px;
+    background: var(--callout-icon-bg);
+    color: var(--callout-accent);
+    flex-shrink: 0;
+  }
+
+  .callout-icon {
+    display: block;
+  }
+
+  .callout-content {
+    min-width: 0;
+  }
+
+  .callout-title {
+    margin: 0 0 0.3rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .callout-body {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .callout-body :global(p) {
+    margin: 0.25rem 0;
+  }
+
+  .callout-body :global(p:first-child) {
+    margin-top: 0;
+  }
+
+  .callout-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .callout-body :global(strong) {
+    color: var(--text-main);
+    font-weight: 700;
+  }
+
+  .callout-body :global(code) {
+    color: var(--text-main);
+  }
+</style>

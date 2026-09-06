@@ -9,13 +9,7 @@ import type {
   StaticTreeChild,
   SiteSchema,
 } from "./types.js";
-import {
-  flattenFileNodes,
-  generatePageMap,
-  safeRelativePath,
-  toSegment,
-  toSlug,
-} from "./utils.js";
+import { flattenFileNodes, generatePageMap, safeRelativePath, toSegment, toSlug } from "./utils.js";
 import { buildMdxWithSchema } from "./frontmatter.js";
 
 export const API_BASE_URL = "https://us-central1-sanity-freeform.cloudfunctions.net";
@@ -36,7 +30,7 @@ async function fetchJson<T>(
   token: string,
   body: Record<string, unknown>,
   errorPrefix: string,
-  options: FetchSiteContentOptions = {},
+  options: FetchSiteContentOptions = {}
 ): Promise<T> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs ?? 30_000);
@@ -73,14 +67,14 @@ async function fetchJson<T>(
 export async function fetchSiteSchemas(
   siteId: string,
   token: string,
-  options: FetchSiteContentOptions = {},
+  options: FetchSiteContentOptions = {}
 ): Promise<Map<string, SiteSchema>> {
   const responseData = await fetchJson<{ schemas?: SiteSchema[] }>(
     SITE_SCHEMAS_ENDPOINT,
     token,
     { siteId },
     "Failed to fetch site schemas",
-    options,
+    options
   );
 
   const schemas = new Map<string, SiteSchema>();
@@ -93,14 +87,14 @@ export async function fetchSiteSchemas(
 export async function fetchStaticFileTree(
   siteId: string,
   token: string,
-  options: FetchSiteContentOptions = {},
+  options: FetchSiteContentOptions = {}
 ): Promise<SitePages> {
   const responseData = await fetchJson<{ root?: StaticTreeChild }>(
     STATIC_FILE_TREE_ENDPOINT,
     token,
     { siteId },
     "Failed to fetch static file tree",
-    options,
+    options
   );
 
   const root = responseData.root;
@@ -108,10 +102,17 @@ export async function fetchStaticFileTree(
     throw new Error("Invalid file tree response: root folder is missing");
   }
 
-  const walkFolder = (children: StaticTreeChild[], parentPath: string, parentFolderId?: string): PageTreeNode[] =>
+  const walkFolder = (
+    children: StaticTreeChild[],
+    parentPath: string,
+    parentFolderId?: string
+  ): PageTreeNode[] =>
     children.map((child) => {
-      const title = typeof child.title === "string" && child.title.trim().length > 0 ? child.title : child.id;
-      const childPath = parentPath ? `${parentPath}/${toSegment(title, child.id)}` : toSegment(title, child.id);
+      const title =
+        typeof child.title === "string" && child.title.trim().length > 0 ? child.title : child.id;
+      const childPath = parentPath
+        ? `${parentPath}/${toSegment(title, child.id)}`
+        : toSegment(title, child.id);
 
       if (child.isFolder) {
         return {
@@ -148,13 +149,16 @@ export async function fetchStaticFileTree(
 export async function fetchAllFileDocuments(
   siteId: string,
   token: string,
-  options: FetchSiteContentOptions = {},
+  options: FetchSiteContentOptions = {}
 ): Promise<Map<string, FileDocument>> {
   const documents = new Map<string, FileDocument>();
   let pageToken: string | null = null;
 
   do {
-    const responseData: { documents?: FileDocument[]; nextPageToken?: string | null } = await fetchJson<{
+    const responseData: {
+      documents?: FileDocument[];
+      nextPageToken?: string | null;
+    } = await fetchJson<{
       documents?: FileDocument[];
       nextPageToken?: string | null;
     }>(
@@ -166,7 +170,7 @@ export async function fetchAllFileDocuments(
         pageToken,
       },
       "Failed to fetch paginated file documents",
-      options,
+      options
     );
     for (const document of responseData.documents ?? []) {
       documents.set(document.id, document);
@@ -181,7 +185,7 @@ export async function stageSiteContent(
   siteId: string,
   token: string,
   contentDir: string,
-  options: FetchSiteContentOptions = {},
+  options: FetchSiteContentOptions = {}
 ): Promise<StagedSiteContent> {
   const [sitePages, documents, schemas] = await Promise.all([
     fetchStaticFileTree(siteId, token, options),
@@ -237,15 +241,12 @@ export async function stageSiteContent(
     }
 
     const slug = toSlug(normalizedPath);
-    const schemaId = fileNode.parentFolderId ? folderSchemaMap.get(fileNode.parentFolderId) : undefined;
+    const schemaId = fileNode.parentFolderId
+      ? folderSchemaMap.get(fileNode.parentFolderId)
+      : undefined;
     const schema = schemaId ? schemas.get(schemaId) : undefined;
 
-    const contentWithFrontmatter = buildMdxWithSchema(
-      document,
-      schema,
-      fileNode.title,
-      slug
-    );
+    const contentWithFrontmatter = buildMdxWithSchema(document, schema, fileNode.title, slug);
 
     await ensureDir(path.dirname(absolutePath));
     await writeTextFile(absolutePath, contentWithFrontmatter);

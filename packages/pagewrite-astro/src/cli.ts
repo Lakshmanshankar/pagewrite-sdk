@@ -68,7 +68,7 @@ async function main(argv: string[]): Promise<void> {
 
     if (options.dryRun) {
       console.log(
-        `Pagewrite dry run complete: fetched ${result.files.length} file(s) for site ${options.siteId}.`,
+        `Pagewrite dry run complete: fetched ${result.files.length} file(s) for site ${options.siteId}.`
       );
       return;
     }

@@ -38,17 +38,17 @@ pagewrite-astro fetch --site-id your-site-id --out src/content/docs
 
 ## Options
 
-| Option | Default | Description |
-| ------ | ------- | ----------- |
-| `--site-id <id>` | required | Pagewrite site id to fetch. |
-| `--out <dir>` | `src/content/docs` | Output directory for generated MDX files. |
-| `--output-dir <dir>` | `src/content/docs` | Alias for `--out`. |
-| `--token <token>` | required | Build token value. |
-| `--clean` | `false` | Remove the output directory before writing files. |
-| `--dry-run` | `false` | Fetch and validate content, then remove temporary output. |
-| `--page-size <number>` | `100` | File document page size. |
-| `--timeout-ms <number>` | `30000` | Request timeout in milliseconds. |
-| `-h`, `--help` | none | Show CLI help. |
+| Option                  | Default            | Description                                               |
+| ----------------------- | ------------------ | --------------------------------------------------------- |
+| `--site-id <id>`        | required           | Pagewrite site id to fetch.                               |
+| `--out <dir>`           | `src/content/docs` | Output directory for generated MDX files.                 |
+| `--output-dir <dir>`    | `src/content/docs` | Alias for `--out`.                                        |
+| `--token <token>`       | required           | Build token value.                                        |
+| `--clean`               | `false`            | Remove the output directory before writing files.         |
+| `--dry-run`             | `false`            | Fetch and validate content, then remove temporary output. |
+| `--page-size <number>`  | `100`              | File document page size.                                  |
+| `--timeout-ms <number>` | `30000`            | Request timeout in milliseconds.                          |
+| `-h`, `--help`          | none               | Show CLI help.                                            |
 
 ## Examples
 
@@ -69,7 +69,6 @@ Clean the target directory before writing fresh content:
 ```bash
 pagewrite-astro fetch --site-id your-site-id --out src/content/docs --clean
 ```
-
 
 Validate remote content without keeping files on disk:
 
