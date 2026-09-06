@@ -1,0 +1,22 @@
+---
+// Scripts.astro
+// Include this component in the <head> to initialize theme logic
+---
+
+{/* Theme Initializer Script */}
+<script is:inline>
+  const applyTheme = () => {
+    if (
+      localStorage.theme === "light" ||
+      (!("theme" in localStorage) && !window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+    }
+  };
+  applyTheme();
+  document.addEventListener("astro:after-swap", applyTheme);
+</script>
