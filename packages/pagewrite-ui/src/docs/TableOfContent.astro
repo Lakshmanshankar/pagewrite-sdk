@@ -1,6 +1,4 @@
 ---
-import "../styles/docs.css";
-
 interface Heading {
   depth: number;
   slug: string;
@@ -115,25 +113,6 @@ const filteredHeadings = headings.filter((h) => h.depth === 1 || h.depth === 2 |
           }
         });
 
-        // Auto-scroll the TOC container if the active headings are out of view
-        const tocContainer = document.querySelector(".toc-container");
-        if (tocContainer && tocContainer.scrollHeight > tocContainer.clientHeight) {
-          const containerRect = tocContainer.getBoundingClientRect();
-          const firstRect = firstLi.getBoundingClientRect();
-          const lastRect = lastLi.getBoundingClientRect();
-
-          if (firstRect.top < containerRect.top + 20) {
-            tocContainer.scrollBy({
-              top: firstRect.top - containerRect.top - 40,
-              behavior: "smooth",
-            });
-          } else if (lastRect.bottom > containerRect.bottom - 20) {
-            tocContainer.scrollBy({
-              top: lastRect.bottom - containerRect.bottom + 40,
-              behavior: "smooth",
-            });
-          }
-        }
       }
     }
 

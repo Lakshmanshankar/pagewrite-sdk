@@ -13,6 +13,8 @@
 
   --code-bg: #fafafa;
   --code-border: #e4e4e7;
+
+  --background: #ffffff;
 }
 
 .dark,
@@ -31,4 +33,6 @@
 
   --code-bg: #18181b;
   --code-border: #27272a;
+
+  --background: #09090b;
 }

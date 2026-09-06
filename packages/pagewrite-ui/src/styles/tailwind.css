@@ -13,6 +13,7 @@
 
   --color-code-bg: var(--code-bg);
   --color-code-border: var(--code-border);
+  --color-background: var(--background);
 
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading);

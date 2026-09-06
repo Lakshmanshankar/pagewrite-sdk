@@ -86,3 +86,54 @@
 .toc-depth-3 {
   padding-left: 2rem;
 }
+
+.toc-container {
+  @apply hidden w-72 shrink-0 py-6 pr-4 pl-2 sticky top-14 self-start max-h-[calc(100vh-3.5rem)] overflow-y-auto;
+}
+
+@media (min-width: 1280px) {
+  .toc-container {
+    @apply block;
+  }
+}
+
+.toc-heading {
+  @apply text-[10px] font-bold uppercase tracking-wide pl-1 mb-3.5;
+  color: var(--toc-heading-color);
+}
+
+.toc-list {
+  @apply relative text-sm list-none p-0 m-0 border-l;
+  color: var(--toc-text-color);
+  border-color: var(--toc-border-color);
+}
+
+.toc-snake {
+  @apply absolute -left-px w-0.5 transition-all duration-300 ease-out z-10 rounded-full;
+  background-color: var(--toc-indicator-bg);
+}
+
+.toc-link {
+  @apply block py-1.5 leading-normal no-underline transition-colors duration-150 ease-in-out;
+  color: var(--toc-text-color);
+}
+
+.toc-link:hover {
+  color: var(--toc-text-hover);
+}
+
+.toc-link.active {
+  color: var(--toc-text-active);
+}
+
+.toc-depth-1 {
+  @apply pl-3 font-medium;
+}
+
+.toc-depth-2 {
+  @apply pl-5;
+}
+
+.toc-depth-3 {
+  @apply pl-8;
+}
