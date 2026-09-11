@@ -85,6 +85,10 @@ export interface StagedSiteContentFile {
 export interface StagedSiteContent {
   sitePages: SitePages;
   files: StagedSiteContentFile[];
+  siteSettings: {
+    contacts: Record<string, string> | Record<string, string>[];
+    cssVariables?: string;
+  };
 }
 
 export interface RemoteMdxLogger {

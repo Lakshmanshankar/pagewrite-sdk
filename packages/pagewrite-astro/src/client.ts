@@ -9,13 +9,21 @@ import type {
   StaticTreeChild,
   SiteSchema,
 } from "./types.js";
-import { flattenFileNodes, generatePageMap, safeRelativePath, toSegment, toSlug } from "./utils.js";
+import {
+  flattenFileNodes,
+  generatePageMap,
+  safeRelativePath,
+  toSegment,
+  toSlug,
+} from "./utils.js";
 import { buildMdxWithSchema } from "./frontmatter.js";
 
-export const API_BASE_URL = "https://us-central1-sanity-freeform.cloudfunctions.net";
+export const API_BASE_URL =
+  "https://us-central1-sanity-freeform.cloudfunctions.net";
 export const STATIC_FILE_TREE_ENDPOINT = `${API_BASE_URL}/getStaticFileTree`;
 export const PAGINATED_FILE_DOCUMENTS_ENDPOINT = `${API_BASE_URL}/getPaginatedFileDocuments`;
 export const SITE_SCHEMAS_ENDPOINT = `${API_BASE_URL}/getSiteSchemas`;
+export const SITE_ENDPOINT = `${API_BASE_URL}/getSite`;
 export const DEFAULT_PAGE_SIZE = 100;
 
 export interface FetchSiteContentOptions {
@@ -30,10 +38,13 @@ async function fetchJson<T>(
   token: string,
   body: Record<string, unknown>,
   errorPrefix: string,
-  options: FetchSiteContentOptions = {}
+  options: FetchSiteContentOptions = {},
 ): Promise<T> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs ?? 30_000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? 30_000,
+  );
   const fetchImpl = options.fetchImpl ?? fetch;
 
   try {
@@ -55,7 +66,9 @@ async function fetchJson<T>(
     return (await response.json()) as T;
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(`${errorPrefix}: request timed out after ${options.timeoutMs ?? 30_000}ms`);
+      throw new Error(
+        `${errorPrefix}: request timed out after ${options.timeoutMs ?? 30_000}ms`,
+      );
     }
 
     throw error;
@@ -64,17 +77,33 @@ async function fetchJson<T>(
   }
 }
 
+export async function fetchSite(
+  siteId: string,
+  token: string,
+  options: FetchSiteContentOptions = {},
+): Promise<any> {
+  const responseData = await fetchJson<any>(
+    SITE_ENDPOINT,
+    token,
+    { siteId },
+    "Failed to fetch site data",
+    options,
+  );
+
+  return responseData.site ?? {};
+}
+
 export async function fetchSiteSchemas(
   siteId: string,
   token: string,
-  options: FetchSiteContentOptions = {}
+  options: FetchSiteContentOptions = {},
 ): Promise<Map<string, SiteSchema>> {
   const responseData = await fetchJson<{ schemas?: SiteSchema[] }>(
     SITE_SCHEMAS_ENDPOINT,
     token,
     { siteId },
     "Failed to fetch site schemas",
-    options
+    options,
   );
 
   const schemas = new Map<string, SiteSchema>();
@@ -87,14 +116,14 @@ export async function fetchSiteSchemas(
 export async function fetchStaticFileTree(
   siteId: string,
   token: string,
-  options: FetchSiteContentOptions = {}
+  options: FetchSiteContentOptions = {},
 ): Promise<SitePages> {
   const responseData = await fetchJson<{ root?: StaticTreeChild }>(
     STATIC_FILE_TREE_ENDPOINT,
     token,
     { siteId },
     "Failed to fetch static file tree",
-    options
+    options,
   );
 
   const root = responseData.root;
@@ -105,11 +134,13 @@ export async function fetchStaticFileTree(
   const walkFolder = (
     children: StaticTreeChild[],
     parentPath: string,
-    parentFolderId?: string
+    parentFolderId?: string,
   ): PageTreeNode[] =>
     children.map((child) => {
       const title =
-        typeof child.title === "string" && child.title.trim().length > 0 ? child.title : child.id;
+        typeof child.title === "string" && child.title.trim().length > 0
+          ? child.title
+          : child.id;
       const childPath = parentPath
         ? `${parentPath}/${toSegment(title, child.id)}`
         : toSegment(title, child.id);
@@ -149,7 +180,7 @@ export async function fetchStaticFileTree(
 export async function fetchAllFileDocuments(
   siteId: string,
   token: string,
-  options: FetchSiteContentOptions = {}
+  options: FetchSiteContentOptions = {},
 ): Promise<Map<string, FileDocument>> {
   const documents = new Map<string, FileDocument>();
   let pageToken: string | null = null;
@@ -170,7 +201,7 @@ export async function fetchAllFileDocuments(
         pageToken,
       },
       "Failed to fetch paginated file documents",
-      options
+      options,
     );
     for (const document of responseData.documents ?? []) {
       documents.set(document.id, document);
@@ -185,12 +216,13 @@ export async function stageSiteContent(
   siteId: string,
   token: string,
   contentDir: string,
-  options: FetchSiteContentOptions = {}
+  options: FetchSiteContentOptions = {},
 ): Promise<StagedSiteContent> {
-  const [sitePages, documents, schemas] = await Promise.all([
+  const [sitePages, documents, schemas, siteData] = await Promise.all([
     fetchStaticFileTree(siteId, token, options),
     fetchAllFileDocuments(siteId, token, options),
     fetchSiteSchemas(siteId, token, options),
+    fetchSite(siteId, token, options).catch(() => ({})),
   ]);
 
   const fileNodes = flattenFileNodes(sitePages.pages);
@@ -224,7 +256,9 @@ export async function stageSiteContent(
     const document = documents.get(fileNode.id);
 
     if (!document) {
-      options.logger?.warn(`Document not found for file node: ${fileNode.id} (${fileNode.title})`);
+      options.logger?.warn(
+        `Document not found for file node: ${fileNode.id} (${fileNode.title})`,
+      );
       continue;
     }
 
@@ -246,7 +280,12 @@ export async function stageSiteContent(
       : undefined;
     const schema = schemaId ? schemas.get(schemaId) : undefined;
 
-    const contentWithFrontmatter = buildMdxWithSchema(document, schema, fileNode.title, slug);
+    const contentWithFrontmatter = buildMdxWithSchema(
+      document,
+      schema,
+      fileNode.title,
+      slug,
+    );
 
     await ensureDir(path.dirname(absolutePath));
     await writeTextFile(absolutePath, contentWithFrontmatter);
@@ -265,8 +304,22 @@ export async function stageSiteContent(
   const pagemapPath = path.join(contentDir, "pagemap.json");
   await writeTextFile(pagemapPath, JSON.stringify(pagemap, null, 2));
 
+  const siteSettings: {
+    contacts: Record<string, string> | Record<string, string>[];
+    cssVariables?: string;
+  } = {
+    contacts: siteData?.contacts ?? {},
+  };
+  if (siteData?.cssVariables) {
+    siteSettings.cssVariables = siteData.cssVariables;
+  }
+
+  const siteSettingsPath = path.join(contentDir, "siteSettings.json");
+  await writeTextFile(siteSettingsPath, JSON.stringify(siteSettings, null, 2));
+
   return {
     sitePages,
     files,
+    siteSettings,
   };
 }
