@@ -1,0 +1,26 @@
+---
+type LayoutTemplate = "1fr 1fr" | "1fr 3fr" | "1fr 1fr 1fr" | "1fr 2fr 1fr" | "1fr 1fr 1fr 1fr";
+
+export interface Props {
+  template?: LayoutTemplate | string;
+}
+
+const { template = "1fr 1fr" } = Astro.props;
+---
+<div class="columns" style={`grid-template-columns: ${template};`}>
+  <slot />
+</div>
+
+<style>
+  .columns {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .columns {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
