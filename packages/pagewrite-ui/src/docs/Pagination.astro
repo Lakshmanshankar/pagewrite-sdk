@@ -14,39 +14,50 @@ interface Props {
 }
 const { prev, next } = Astro.props;
 ---
-<div class="bg-background flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-12 pt-8 border-t border-border-line">
-  {prev ? (
-    <a 
-      href={prev.url} 
-      class="flex-1 group flex flex-col p-4 border border-border-line rounded-md bg-secondary/50 hover:bg-background transition-interactive text-left"
-    >
-      <div class="flex items-center gap-2 mb-2 text-sm text-text-muted group-hover:text-text transition-colors">
-        <ChevronLeft width="16" height="16" />
-        <span class="font-medium">Previous</span>
-      </div>
-      <span class="text-base font-semibold text-text-title group-hover:text-text transition-colors line-clamp-1">{prev.title}</span>
-      {prev.description && (
-        <span class="text-sm text-text-muted line-clamp-2 mt-1">{prev.description}</span>
-      )}
-    </a>
-  ) : (
-    <div class="flex-1"></div>
-  )}
-  {next ? (
-    <a 
-      href={next.url} 
-      class="flex-1 group flex flex-col p-4 border border-border-line rounded-md bg-secondary/50 hover:bg-background transition-interactive text-right"
-    >
-      <div class="flex items-center justify-end gap-2 mb-2 text-sm text-text-muted group-hover:text-text transition-colors">
-        <span class="font-medium">Next</span>
-        <ChevronRight width="16" height="16" />
-      </div>
-      <span class="text-base font-semibold text-text-title group-hover:text-text transition-colors line-clamp-1">{next.title}</span>
-      {next.description && (
-        <span class="text-sm text-text-muted line-clamp-2 mt-1">{next.description}</span>
-      )}
-    </a>
-  ) : (
-    <div class="flex-1"></div>
-  )}
+
+<div
+  class="bg-background flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-12 pt-8 border-t border-border-line"
+>
+  {
+    prev ? (
+      <a
+        href={prev.url}
+        class="flex-1 group flex flex-col p-4 border border-border-line rounded-md bg-secondary/50 hover:bg-background transition-interactive text-left"
+      >
+        <div class="flex items-center gap-2 mb-2 text-sm text-text-muted group-hover:text-text transition-colors">
+          <ChevronLeft width="16" height="16" />
+          <span class="font-medium">Previous</span>
+        </div>
+        <span class="text-base font-semibold text-text-title group-hover:text-text transition-colors line-clamp-1">
+          {prev.title}
+        </span>
+        {prev.description && (
+          <span class="text-sm text-text-muted line-clamp-2 mt-1">{prev.description}</span>
+        )}
+      </a>
+    ) : (
+      <div class="flex-1" />
+    )
+  }
+  {
+    next ? (
+      <a
+        href={next.url}
+        class="flex-1 group flex flex-col p-4 border border-border-line rounded-md bg-secondary/50 hover:bg-background transition-interactive text-right"
+      >
+        <div class="flex items-center justify-end gap-2 mb-2 text-sm text-text-muted group-hover:text-text transition-colors">
+          <span class="font-medium">Next</span>
+          <ChevronRight width="16" height="16" />
+        </div>
+        <span class="text-base font-semibold text-text-title group-hover:text-text transition-colors line-clamp-1">
+          {next.title}
+        </span>
+        {next.description && (
+          <span class="text-sm text-text-muted line-clamp-2 mt-1">{next.description}</span>
+        )}
+      </a>
+    ) : (
+      <div class="flex-1" />
+    )
+  }
 </div>

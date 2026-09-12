@@ -1,0 +1,75 @@
+---
+import * as Icons from "../icons/index.ts";
+
+export interface Props {
+  visibleLinks?: string;
+}
+
+const { visibleLinks = "" } = Astro.props;
+
+const linksList = visibleLinks.split(",").map((l) => l.trim().toLowerCase()).filter(Boolean);
+
+const ICON_MAP: Record<string, string> = {
+  github: "Github",
+  x: "Twitter_X",
+  leetcode: "Leetcode",
+  linkedin: "LinkedIn",
+  medium: "Medium",
+  bluesky: "BlueSky",
+  figma: "Figma",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  mail: "Mail",
+  reddit: "Reddit"
+};
+---
+
+<div class="contact-form">
+  <div class="social-links">
+    {linksList.map((key) => {
+      const iconName = ICON_MAP[key];
+      if (!iconName) return null;
+      
+      const IconComponent = Icons[iconName as keyof typeof Icons];
+      if (!IconComponent) return null;
+      
+      return (
+        <div class="social-icon" aria-label={key}>
+          <IconComponent />
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<style>
+  .contact-form {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+  }
+
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main, #111827);
+  }
+
+  :global(html.dark) .social-icon {
+    color: var(--text-main, #f3f4f6);
+  }
+  
+  .social-icon :global(svg) {
+    width: 52px;
+    height: 52px;
+    fill: currentColor;
+  }
+</style>
