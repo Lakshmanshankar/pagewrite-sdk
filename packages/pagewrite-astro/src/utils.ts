@@ -5,30 +5,36 @@ export function generatePageMap(
   nodes: PageTreeNode[],
   documents?: Map<string, FileDocument>
 ): PageMapNode[] {
-  return nodes.map((node) => {
+  return nodes.reduce<PageMapNode[]>((acc, node) => {
     let slug = toSlug(safeRelativePath(node.path));
 
     if (node.type === "file" && documents) {
       const doc = documents.get(node.id);
+      if (doc?.metadata?.pageStatus !== "published") {
+        return acc;
+      }
       if (doc?.metadata?.slug && typeof doc.metadata.slug === "string") {
         slug = doc.metadata.slug;
       }
     }
 
     if (node.type === "folder") {
-      return {
+      acc.push({
         id: node.id,
         title: node.title,
         slug,
         children: generatePageMap(node.children, documents),
-      };
+      });
+    } else {
+      acc.push({
+        id: node.id,
+        title: node.title,
+        slug,
+      });
     }
-    return {
-      id: node.id,
-      title: node.title,
-      slug,
-    };
-  });
+
+    return acc;
+  }, []);
 }
 
 export function flattenFileNodes(nodes: PageTreeNode[]): PageTreeFileNode[] {
