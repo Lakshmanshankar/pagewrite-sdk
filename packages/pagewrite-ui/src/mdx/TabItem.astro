@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  value: string;
+}
+const { title, value } = Astro.props;
+---
+
+<page-write-tab-item data-title={title} data-value={value}>
+  <slot />
+</page-write-tab-item>
+
+<style>
+  page-write-tab-item {
+    display: none;
+  }
+  page-write-tab-item.active {
+    display: block;
+    animation: fadeIn 0.2s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>

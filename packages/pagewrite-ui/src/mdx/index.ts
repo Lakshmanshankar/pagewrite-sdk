@@ -4,3 +4,6 @@ export { default as Spacer } from "./Spacer.astro";
 export { default as Columns } from "./Columns.astro";
 export { default as ColumnItem } from "./ColumnItem.astro";
 export { default as ContactForm } from "./ContactForm.astro";
+export { default as Expand } from "./Expand.astro";
+export { default as Tabs } from "./Tabs.astro";
+export { default as TabItem } from "./TabItem.astro";
