@@ -1,0 +1,125 @@
+---
+interface Props {
+  activeTab?: string;
+  class?: string;
+}
+const { activeTab, class: className = "" } = Astro.props;
+---
+
+<page-write-tabs data-active={activeTab} class={className}>
+  <div class="tabs-header" role="tablist"></div>
+  <div class="tabs-content">
+    <slot />
+  </div>
+</page-write-tabs>
+
+<script>
+  class PageWriteTabs extends HTMLElement {
+    constructor() {
+      super();
+      
+      if (this.hasAttribute('data-initialized')) return;
+      this.setAttribute('data-initialized', 'true');
+
+      let activeTab = this.dataset.active;
+      const headerContainer = this.querySelector('.tabs-header');
+      const items = this.querySelectorAll('page-write-tab-item');
+      
+      if (!activeTab && items.length > 0) {
+        activeTab = items[0].getAttribute('data-value') || '';
+      }
+      
+      items.forEach((item, index) => {
+        const title = item.getAttribute('data-title') || `Tab ${index + 1}`;
+        const value = item.getAttribute('data-value') || `tab-${index}`;
+        
+        const btn = document.createElement('button');
+        btn.className = 'tab-button';
+        btn.setAttribute('role', 'tab');
+        btn.setAttribute('aria-selected', activeTab === value ? 'true' : 'false');
+        btn.textContent = title;
+        
+        if (activeTab === value) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+        
+        btn.addEventListener('click', () => {
+          this.querySelectorAll('.tab-button').forEach(b => b.setAttribute('aria-selected', 'false'));
+          btn.setAttribute('aria-selected', 'true');
+          
+          items.forEach(i => {
+            if (i.getAttribute('data-value') === value) {
+              i.classList.add('active');
+            } else {
+              i.classList.remove('active');
+            }
+          });
+        });
+        
+        if (headerContainer) {
+          headerContainer.appendChild(btn);
+        }
+      });
+    }
+  }
+  
+  if (!customElements.get('page-write-tabs')) {
+    customElements.define('page-write-tabs', PageWriteTabs);
+  }
+</script>
+
+<style>
+  page-write-tabs {
+    display: block;
+    margin: 1.25rem 0;
+    border: 1px solid var(--border-line, #e5e7eb);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .tabs-header {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-line, #e5e7eb);
+    padding: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .tabs-header :global(.tab-button) {
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted, #6b7280);
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .tabs-header :global(.tab-button[aria-selected="true"]) {
+    color: var(--brand-color, #3b82f6);
+    background: var(--secondary, #f4f4f5);
+  }
+
+  .tabs-header :global(.tab-button:hover:not([aria-selected="true"])) {
+    color: var(--text, #374151);
+    background: color-mix(in srgb, var(--secondary, #f4f4f5) 50%, transparent);
+  }
+
+  .tabs-content {
+    padding: 1rem;
+    color: var(--text, #374151);
+    line-height: 1.65;
+  }
+  
+  .tabs-content :global(> *:first-child) {
+    margin-top: 0;
+  }
+  .tabs-content :global(> *:last-child) {
+    margin-bottom: 0;
+  }
+</style>

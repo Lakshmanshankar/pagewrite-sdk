@@ -1,0 +1,132 @@
+---
+import { ChevronRight } from "@lucide/astro";
+
+interface Props {
+  title?: string;
+  open?: boolean | string;
+}
+
+const { title = "Expand", open = false } = Astro.props;
+const isOpen = open === true || open === "true";
+---
+
+<expand-component data-open={isOpen ? "true" : "false"}>
+  <div class="expand-container">
+    <button class="expand-summary">
+      <div class="expand-icon-wrapper">
+        <ChevronRight size={18} class="expand-icon" />
+      </div>
+      <span class="expand-title">{title}</span>
+    </button>
+    <div class="expand-content-wrapper">
+      <div class="expand-content-inner">
+        <div class="expand-content">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </div>
+</expand-component>
+
+<style>
+  expand-component {
+    display: block;
+    margin: 1.25rem 0;
+  }
+  
+  .expand-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    color: var(--text-main, #000);
+    text-align: left;
+    outline: none;
+  }
+  
+  :global(html:not(.light)) .expand-summary {
+    color: var(--text-main, #fff);
+  }
+
+  .expand-summary:hover {
+    opacity: 0.8;
+  }
+
+  .expand-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-soft, #666);
+  }
+  
+  :global(html:not(.light)) .expand-icon-wrapper {
+    color: var(--text-soft, #ccc);
+  }
+
+  expand-component[data-open="true"] .expand-icon-wrapper {
+    transform: rotate(90deg);
+  }
+  
+  .expand-title {
+    font-size: 0.95rem;
+  }
+
+  .expand-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  expand-component[data-open="true"] .expand-content-wrapper {
+    grid-template-rows: 1fr;
+  }
+
+  .expand-content-inner {
+    overflow: hidden;
+  }
+
+  .expand-content {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1.65rem; /* Aligns content with title text roughly */
+    color: var(--text-soft, #666);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+  
+  :global(html:not(.light)) .expand-content {
+    color: var(--text-soft, #ccc);
+  }
+
+  .expand-content :global(> *:first-child) {
+    margin-top: 0;
+  }
+
+  .expand-content :global(> *:last-child) {
+    margin-bottom: 0;
+  }
+</style>
+
+<script>
+  class ExpandComponent extends HTMLElement {
+    constructor() {
+      super();
+      const button = this.querySelector('.expand-summary');
+      if (button) {
+        button.addEventListener('click', () => {
+          const isOpen = this.getAttribute('data-open') === 'true';
+          this.setAttribute('data-open', String(!isOpen));
+        });
+      }
+    }
+  }
+
+  if (!customElements.get('expand-component')) {
+    customElements.define('expand-component', ExpandComponent);
+  }
+</script>
