@@ -5,6 +5,7 @@ export interface RemoteMdxOptions {
   outputDir?: string;
   clean?: boolean;
   verbose?: boolean;
+  disabled?: boolean;
 }
 
 export interface SchemaField {

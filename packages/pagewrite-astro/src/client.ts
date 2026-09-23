@@ -304,6 +304,20 @@ export async function stageSiteContent(
   const pagemapPath = path.join(contentDir, "pagemap.json");
   await writeTextFile(pagemapPath, JSON.stringify(pagemap, null, 2));
 
+  const links: Record<string, string> = {};
+  const extractLinks = (nodes: any[]) => {
+    for (const node of nodes) {
+      links[node.id] = node.slug;
+      if (node.children) {
+        extractLinks(node.children);
+      }
+    }
+  };
+  extractLinks(pagemap);
+
+  const linksPath = path.join(contentDir, "links.json");
+  await writeTextFile(linksPath, JSON.stringify(links, null, 2));
+
   const siteSettings: {
     contacts: Record<string, string> | Record<string, string>[];
     cssVariables?: string;

@@ -47,6 +47,11 @@ export function remoteMdx(options: RemoteMdxOptions): AstroIntegration {
     name: "pagewrite-astro",
     hooks: {
       "astro:config:setup": async ({ config, command, logger }) => {
+        if (options.disabled) {
+          logger.info("Pagewrite integration is disabled. Skipping content sync.");
+          return;
+        }
+
         const integrationLogger = createLogger(logger);
         const root = fileURLToPath(config.root);
         const env = loadEnv(command === "dev" ? "development" : "production", root, "");
