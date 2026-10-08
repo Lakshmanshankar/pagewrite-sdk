@@ -219,10 +219,22 @@ export async function stageSiteContent(
   options: FetchSiteContentOptions = {},
 ): Promise<StagedSiteContent> {
   const [sitePages, documents, schemas, siteData] = await Promise.all([
-    fetchStaticFileTree(siteId, token, options),
-    fetchAllFileDocuments(siteId, token, options),
-    fetchSiteSchemas(siteId, token, options),
-    fetchSite(siteId, token, options).catch(() => ({})),
+    fetchStaticFileTree(siteId, token, options).catch((error) => {
+      options.logger?.error?.(`Error in fetchStaticFileTree: ${error}`);
+      throw error;
+    }),
+    fetchAllFileDocuments(siteId, token, options).catch((error) => {
+      options.logger?.error?.(`Error in fetchAllFileDocuments: ${error}`);
+      throw error;
+    }),
+    fetchSiteSchemas(siteId, token, options).catch((error) => {
+      options.logger?.error?.(`Error in fetchSiteSchemas: ${error}`);
+      throw error;
+    }),
+    fetchSite(siteId, token, options).catch((error) => {
+      options.logger?.warn?.(`Error in fetchSite: ${error}`);
+      return {};
+    }),
   ]);
 
   const fileNodes = flattenFileNodes(sitePages.pages);
