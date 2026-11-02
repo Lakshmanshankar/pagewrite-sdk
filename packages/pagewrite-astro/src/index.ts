@@ -14,7 +14,10 @@ export type {
   PageTreeFolderNode,
   PageTreeNode,
   RemoteMdxOptions,
+  SchemaField,
+  SchemaFieldOption,
   SitePages,
+  SiteSchema,
   StagedSiteContent,
   StaticTreeChild,
 } from "./types.js";
@@ -29,6 +32,7 @@ export {
   stageSiteContent,
 } from "./client.js";
 export { resolveToken } from "./token.js";
+export { buildMdxWithSchema, lookupOptionValue, resolveFolderSchemaId } from "./frontmatter.js";
 export {
   flattenFileNodes,
   generatePageMap,

@@ -58,6 +58,7 @@ describe("Pagewrite content fetching", () => {
         databaseType: undefined,
         lang: undefined,
         schemaId: undefined,
+        parentFolderId: "root",
         children: [
           {
             id: "file-1",
@@ -175,6 +176,95 @@ describe("Pagewrite content fetching", () => {
         2
       )
     );
+  });
+
+  it("stages site content looking up schema one level up and replacing select/multi-select ids with option values", async () => {
+    const fetchImpl = vi.fn(async (url) => {
+      if (url === STATIC_FILE_TREE_ENDPOINT) {
+        return jsonResponse({
+          root: {
+            id: "root-1",
+            isFolder: true,
+            children: [
+              {
+                id: "parent-folder",
+                title: "Work",
+                isFolder: true,
+                schemaId: "work-schema",
+                children: [
+                  {
+                    id: "child-folder",
+                    title: "Experiences",
+                    isFolder: true,
+                    // schemaId not set; inherits from parent-folder
+                    children: [
+                      {
+                        id: "file-job",
+                        title: "Codvantage",
+                        isFolder: false,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        });
+      }
+
+      if (url.includes("getSiteSchemas")) {
+        return jsonResponse({
+          schemas: [
+            {
+              id: "work-schema",
+              name: "Work Schema",
+              fields: [
+                {
+                  id: "role_field",
+                  name: "Role",
+                  type: "select",
+                  options: [{ id: "2jmvpy", label: "Software Engineer", value: "2jmvpy" }],
+                },
+                {
+                  id: "tags_field",
+                  name: "Tags",
+                  type: "multi_select",
+                  options: [
+                    { id: "opt_lexical", label: "Lexical" },
+                    { id: "opt_astro", label: "Astro" },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+      }
+
+      return jsonResponse({
+        documents: [
+          {
+            id: "file-job",
+            mdxString: "# Experience at Codvantage",
+            metadata: {
+              pageStatus: "published",
+              role_field: "2jmvpy",
+              tags_field: ["opt_lexical", "opt_astro"],
+            },
+          },
+        ],
+      });
+    }) as unknown as typeof fetch;
+
+    const result = await stageSiteContent("site-1", "token", tmpDir, {
+      fetchImpl,
+    });
+
+    expect(result.files).toHaveLength(1);
+    const content = await fs.readFile(path.join(tmpDir, "work/experiences/codvantage.mdx"), "utf8");
+
+    expect(content).toContain("role: Software Engineer");
+    expect(content).toContain("tags:\n  - Lexical\n  - Astro");
+    expect(content).toContain("# Experience at Codvantage");
   });
 
   it("throws useful errors for failed requests", async () => {

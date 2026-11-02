@@ -8,11 +8,20 @@ export interface RemoteMdxOptions {
   disabled?: boolean;
 }
 
+export interface SchemaFieldOption {
+  id: string;
+  label?: string;
+  value?: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
 export interface SchemaField {
   id: string;
   name: string;
   type: string;
   required?: boolean;
+  options?: SchemaFieldOption[];
   [key: string]: unknown;
 }
 
@@ -40,6 +49,7 @@ export interface PageTreeFolderNode {
   databaseType?: string;
   lang?: string;
   schemaId?: string;
+  parentFolderId?: string;
   children: PageTreeNode[];
 }
 
