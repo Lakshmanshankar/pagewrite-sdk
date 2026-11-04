@@ -97,9 +97,15 @@ export interface StagedSiteContent {
   sitePages: SitePages;
   files: StagedSiteContentFile[];
   siteSettings: {
+    siteName?: string;
     contacts: Record<string, string> | Record<string, string>[];
     cssVariables?: string;
+    navbar?: unknown;
+    footer?: unknown;
+    cssSettings?: unknown;
+    css?: unknown;
   };
+  schemas?: Map<string, SiteSchema>;
 }
 
 export interface RemoteMdxLogger {

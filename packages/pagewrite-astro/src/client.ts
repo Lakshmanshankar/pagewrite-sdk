@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { ensureDir, writeTextFile } from "./fs.js";
 import type {
@@ -321,9 +322,7 @@ export async function stageSiteContent(
   if (skippedCount > 0) {
     options.logger?.info?.(`Skipped ${skippedCount} non-published page(s).`);
   }
-  const pagemap = generatePageMap(sitePages.pages, documents);
-  const pagemapPath = path.join(contentDir, "pagemap.json");
-  await writeTextFile(pagemapPath, JSON.stringify(pagemap, null, 2));
+  const pageTree = generatePageMap(sitePages.pages, documents);
 
   const links: Record<string, string> = {};
   const extractLinks = (nodes: any[]) => {
@@ -334,27 +333,117 @@ export async function stageSiteContent(
       }
     }
   };
-  extractLinks(pagemap);
-
-  const linksPath = path.join(contentDir, "links.json");
-  await writeTextFile(linksPath, JSON.stringify(links, null, 2));
+  extractLinks(pageTree);
 
   const siteSettings: {
+    siteName?: string;
     contacts: Record<string, string> | Record<string, string>[];
     cssVariables?: string;
+    navbar?: unknown;
+    footer?: unknown;
+    cssSettings?: unknown;
+    css?: unknown;
   } = {
     contacts: siteData?.contacts ?? {},
   };
+  if (siteData?.siteName || siteData?.title || siteData?.name) {
+    siteSettings.siteName = siteData?.siteName ?? siteData?.title ?? siteData?.name;
+  }
+  if (siteData?.navbar) {
+    siteSettings.navbar = siteData.navbar;
+  }
+  if (siteData?.footer) {
+    siteSettings.footer = siteData.footer;
+  }
   if (siteData?.cssVariables) {
     siteSettings.cssVariables = siteData.cssVariables;
   }
+  if (siteData?.cssSettings) {
+    siteSettings.cssSettings = siteData.cssSettings;
+    siteSettings.css = siteData.cssSettings;
+  } else if (siteData?.css) {
+    siteSettings.css = siteData.css;
+  }
 
-  const siteSettingsPath = path.join(contentDir, "siteSettings.json");
-  await writeTextFile(siteSettingsPath, JSON.stringify(siteSettings, null, 2));
+  // Extract pageData map: { [pageId]: metaData }
+  const pageData: Record<string, Record<string, unknown>> = {};
+  for (const [id, doc] of documents.entries()) {
+    pageData[id] = doc.metadata ?? {};
+  }
+
+  // Write all collection json files under /site/{name}.json
+  const siteDir = path.join(contentDir, "site");
+  await ensureDir(siteDir);
+
+  // Remove legacy files from root contentDir and siteDir if present
+  const legacyFiles = [
+    "links.json",
+    "pagemap.json",
+    "pageMap.json",
+    "folders.json",
+    "folderMap.json",
+    "siteSettings.json",
+    "pageData.json",
+    "pageNodes.json",
+    "pageLinks.json",
+    "schema.json",
+    "schemas.json",
+  ];
+  for (const file of legacyFiles) {
+    try {
+      await fs.unlink(path.join(contentDir, file));
+    } catch {}
+    if (
+      file === "pagemap.json" ||
+      file === "pageMap.json" ||
+      file === "pageNodes.json" ||
+      file === "pageLinks.json" ||
+      file === "folderMap.json" ||
+      file === "folders.json"
+    ) {
+      try {
+        await fs.unlink(path.join(siteDir, file));
+      } catch {}
+    }
+  }
+
+  // Convert schemas map to [schemaId]: { details, fields: [fieldId]: { value } }
+  const schemasMap: Record<string, Record<string, unknown>> = {};
+  for (const [schemaId, schema] of schemas.entries()) {
+    const fieldsMap: Record<string, Record<string, unknown>> = {};
+    if (Array.isArray(schema.fields)) {
+      for (const field of schema.fields) {
+        const fieldKey = field.id || field.name;
+        if (fieldKey) {
+          const { id: _, ...fieldDetails } = field;
+          fieldsMap[fieldKey] = {
+            ...fieldDetails,
+          };
+        }
+      }
+    } else if (schema.fields && typeof schema.fields === "object") {
+      Object.assign(fieldsMap, schema.fields);
+    }
+
+    const { id: _, ...schemaDetails } = schema;
+    schemasMap[schemaId] = {
+      ...schemaDetails,
+      fields: fieldsMap,
+    };
+  }
+
+  await Promise.all([
+    writeTextFile(path.join(siteDir, "siteSettings.json"), JSON.stringify(siteSettings, null, 2)),
+    writeTextFile(path.join(siteDir, "links.json"), JSON.stringify(links, null, 2)),
+    writeTextFile(path.join(siteDir, "pageTree.json"), JSON.stringify(pageTree, null, 2)),
+    writeTextFile(path.join(siteDir, "pageData.json"), JSON.stringify(pageData, null, 2)),
+    writeTextFile(path.join(siteDir, "schema.json"), JSON.stringify(schemasMap, null, 2)),
+  ]);
 
   return {
     sitePages,
     files,
     siteSettings,
+    schemas,
   };
 }

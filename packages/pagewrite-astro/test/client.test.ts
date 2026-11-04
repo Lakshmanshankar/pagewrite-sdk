@@ -163,19 +163,34 @@ describe("Pagewrite content fetching", () => {
     await expect(fs.readFile(path.join(tmpDir, "hello-world.mdx"), "utf8")).resolves.toBe(
       '---\ntitle: "Hello World"\nslug: "hello-world"\nid: "file-1"\n---\n\n# Body'
     );
-    await expect(fs.readFile(path.join(tmpDir, "pagemap.json"), "utf8")).resolves.toBe(
-      JSON.stringify(
-        [
-          {
-            id: "file-1",
-            title: "Hello World",
-            slug: "hello-world",
-          },
-        ],
-        null,
-        2
-      )
+    const pageTreeData = JSON.parse(
+      await fs.readFile(path.join(tmpDir, "site", "pageTree.json"), "utf8")
     );
+    expect(pageTreeData).toEqual([
+      {
+        id: "file-1",
+        title: "Hello World",
+        slug: "hello-world",
+      },
+    ]);
+
+    // pageMap.json, folders.json, folderMap.json, and root-level legacy files should not exist
+    await expect(fs.stat(path.join(tmpDir, "site", "pageMap.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "site", "folders.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "site", "folderMap.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "pagemap.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "folders.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "folderMap.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "links.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "siteSettings.json"))).rejects.toThrow();
+    await expect(fs.stat(path.join(tmpDir, "pageData.json"))).rejects.toThrow();
+
+    // Staged files under site/ should exist
+    await expect(fs.stat(path.join(tmpDir, "site", "links.json"))).resolves.toBeDefined();
+    await expect(fs.stat(path.join(tmpDir, "site", "pageTree.json"))).resolves.toBeDefined();
+    await expect(fs.stat(path.join(tmpDir, "site", "siteSettings.json"))).resolves.toBeDefined();
+    await expect(fs.stat(path.join(tmpDir, "site", "pageData.json"))).resolves.toBeDefined();
+    await expect(fs.stat(path.join(tmpDir, "site", "schema.json"))).resolves.toBeDefined();
   });
 
   it("stages site content looking up schema one level up and replacing select/multi-select ids with option values", async () => {
@@ -265,6 +280,13 @@ describe("Pagewrite content fetching", () => {
     expect(content).toContain("role: Software Engineer");
     expect(content).toContain("tags:\n  - Lexical\n  - Astro");
     expect(content).toContain("# Experience at Codvantage");
+
+    const schemaJson = JSON.parse(
+      await fs.readFile(path.join(tmpDir, "site", "schema.json"), "utf8")
+    );
+    expect(schemaJson["work-schema"]).toBeDefined();
+    expect(schemaJson["work-schema"].fields["role_field"]).toBeDefined();
+    expect(schemaJson["work-schema"].fields["role_field"].name).toBe("Role");
   });
 
   it("throws useful errors for failed requests", async () => {

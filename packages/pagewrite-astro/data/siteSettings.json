@@ -1,0 +1,60 @@
+{
+  "siteName": "Pagewrite",
+  "contacts": {
+    "github": "https://github.com/lakshmanshankar",
+    "x": "",
+    "leetcode": "https://leetcode.com/lakshmanashankrc",
+    "linkedin": "",
+    "figma": "",
+    "facebook": "",
+    "instagram": "",
+    "email": "",
+    "medium": "",
+    "bluesky": "",
+    "reddit": ""
+  },
+  "navbar": {
+    "title": "Pagewrite",
+    "logo": {
+      "light": "/logo.svg",
+      "dark": "/logo-dark.svg",
+      "alt": "Pagewrite Logo"
+    },
+    "links": [
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      }
+    ]
+  },
+  "footer": {
+    "siteTitle": "Pagewrite",
+    "description": "Open-source content authoring platform.",
+    "copyright": "2026 Pagewrite. All rights reserved.",
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/lakshmanshankar"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com/lakshmanshr"
+      }
+    ],
+    "legalLinks": [
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy"
+      },
+      {
+        "label": "Terms of Service",
+        "href": "/terms"
+      }
+    ]
+  },
+  "cssVariables": ":root {\n  --brand-color: #f75b26;\n  --brand-color-active: #ffb347;\n\n  --text: #374151;\n  --text-muted: #6b7280;\n  --text-title: #111827;\n\n  --border-line: #e5e7eb;\n\n  --secondary: #f4f4f5;\n  --accent: #f4f4f5;\n\n  --code-bg: #ededed;\n  --code-border: #e4e4e7;\n\n  --background: #ffffff;\n}\n\n.dark {\n  --brand-color: #ffe229;\n  --brand-color-active: #b5fb60;\n\n  --text: #f9fafb;\n  --text-muted: #9ca3af;\n  --text-title: #ffffff;\n\n  --border-line: #374151;\n\n  --secondary: #1f2937;\n  --accent: #374151;\n\n  --code-bg: #111827;\n  --code-border: #374151;\n\n  --background: #000000;\n}"
+}
