@@ -1,0 +1,40 @@
+{
+  "blog-schema": {
+    "name": "Blog Post",
+    "fields": {
+      "title": {
+        "name": "Title",
+        "type": "string",
+        "required": true
+      },
+      "description": {
+        "name": "Description",
+        "type": "string"
+      },
+      "publishedAt": {
+        "name": "Published Date",
+        "type": "date"
+      },
+      "tags": {
+        "name": "Tags",
+        "type": "multi-select",
+        "options": [
+          { "id": "astro", "label": "Astro", "value": "astro" },
+          { "id": "typescript", "label": "TypeScript", "value": "typescript" }
+        ]
+      }
+    }
+  },
+  "work-schema": {
+    "name": "Work Experience",
+    "fields": {
+      "role_field": {
+        "name": "Role",
+        "type": "select",
+        "options": [
+          { "id": "swe", "label": "Software Engineer", "value": "swe" }
+        ]
+      }
+    }
+  }
+}

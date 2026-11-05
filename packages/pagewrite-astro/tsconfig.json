@@ -10,7 +10,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"],
+    "types": ["node", "astro/client"],
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],

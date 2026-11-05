@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   flattenFileNodes,
+  generateFolderMap,
   generatePageMap,
   safeRelativePath,
   toSegment,
@@ -9,6 +10,75 @@ import {
 } from "../src/utils.js";
 
 describe("content utils", () => {
+  it("generates folder map with flattened file nodes and depth", () => {
+    const pages = [
+      {
+        id: "folder-1",
+        type: "folder" as const,
+        title: "Docs",
+        path: "docs",
+        children: [
+          {
+            id: "file-1",
+            type: "file" as const,
+            title: "Getting Started",
+            path: "docs/getting-started",
+            storageFile: "",
+          },
+          {
+            id: "folder-nested",
+            type: "folder" as const,
+            title: "Deep",
+            path: "docs/deep",
+            children: [
+              {
+                id: "file-2",
+                type: "file" as const,
+                title: "Deep Page",
+                path: "docs/deep/page",
+                storageFile: "",
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const folderMap = generateFolderMap(pages, undefined, "root");
+
+    // Check root folder
+    expect(folderMap["root"]).toBeDefined();
+    expect(folderMap["root"].children).toHaveLength(2);
+    expect(folderMap["root"].children[0].id).toBe("file-1");
+    expect(folderMap["root"].children[0].depth).toBe(2);
+    expect(folderMap["root"].children[1].id).toBe("file-2");
+    expect(folderMap["root"].children[1].depth).toBe(3);
+
+    // Check folder-1: immediate file depth 1, nested file depth 2
+    expect(folderMap["folder-1"]).toBeDefined();
+    expect(folderMap["folder-1"].children).toHaveLength(2);
+    expect(folderMap["folder-1"].children[0]).toEqual({
+      id: "file-1",
+      title: "Getting Started",
+      slug: "docs/getting-started",
+      path: "docs/getting-started",
+      depth: 1,
+      parentFolderId: undefined,
+    });
+    expect(folderMap["folder-1"].children[1]).toEqual({
+      id: "file-2",
+      title: "Deep Page",
+      slug: "docs/deep/page",
+      path: "docs/deep/page",
+      depth: 2,
+      parentFolderId: undefined,
+    });
+
+    // Check folder-nested: immediate file depth 1
+    expect(folderMap["folder-nested"]).toBeDefined();
+    expect(folderMap["folder-nested"].children).toHaveLength(1);
+    expect(folderMap["folder-nested"].children[0].depth).toBe(1);
+  });
   it("generates page map", () => {
     expect(
       generatePageMap([

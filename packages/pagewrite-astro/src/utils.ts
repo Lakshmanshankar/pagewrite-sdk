@@ -1,6 +1,100 @@
 import path from "node:path";
 import type { PageMapNode, PageTreeFileNode, PageTreeNode, FileDocument } from "./types.js";
 
+export interface FlatFileChild {
+  id: string;
+  title: string;
+  slug: string;
+  path: string;
+  depth: number;
+  parentFolderId?: string;
+}
+
+export interface FolderMapEntry {
+  id: string;
+  title: string;
+  path?: string;
+  slug?: string;
+  parentFolderId?: string;
+  schemaId?: string;
+  children: FlatFileChild[];
+}
+
+export function flattenFolderFileChildren(
+  nodes: PageTreeNode[],
+  documents?: Map<string, FileDocument>,
+  currentDepth = 1
+): FlatFileChild[] {
+  const list: FlatFileChild[] = [];
+
+  for (const node of nodes) {
+    if (node.type === "file") {
+      let slug = toSlug(safeRelativePath(node.path));
+      if (documents) {
+        const doc = documents.get(node.id);
+        if (doc?.metadata?.pageStatus !== "published") {
+          continue;
+        }
+        if (doc?.metadata?.slug && typeof doc.metadata.slug === "string") {
+          slug = doc.metadata.slug;
+        }
+      }
+
+      list.push({
+        id: node.id,
+        title: node.title,
+        slug,
+        path: node.path,
+        depth: currentDepth,
+        parentFolderId: node.parentFolderId,
+      });
+    } else if (node.type === "folder") {
+      list.push(...flattenFolderFileChildren(node.children, documents, currentDepth + 1));
+    }
+  }
+
+  return list;
+}
+
+export function generateFolderMap(
+  pages: PageTreeNode[],
+  documents?: Map<string, FileDocument>,
+  rootFolderId?: string
+): Record<string, FolderMapEntry> {
+  const map: Record<string, FolderMapEntry> = {};
+
+  if (rootFolderId) {
+    map[rootFolderId] = {
+      id: rootFolderId,
+      title: "Root",
+      path: "",
+      slug: "",
+      children: flattenFolderFileChildren(pages, documents, 1),
+    };
+  }
+
+  function walk(nodes: PageTreeNode[], parentFolderId?: string) {
+    for (const node of nodes) {
+      if (node.type === "folder") {
+        const slug = toSlug(safeRelativePath(node.path));
+        map[node.id] = {
+          id: node.id,
+          title: node.title,
+          path: node.path,
+          slug,
+          parentFolderId: node.parentFolderId ?? parentFolderId,
+          schemaId: node.schemaId,
+          children: flattenFolderFileChildren(node.children, documents, 1),
+        };
+        walk(node.children, node.id);
+      }
+    }
+  }
+
+  walk(pages, rootFolderId);
+  return map;
+}
+
 export function generatePageMap(
   nodes: PageTreeNode[],
   documents?: Map<string, FileDocument>
@@ -36,6 +130,8 @@ export function generatePageMap(
     return acc;
   }, []);
 }
+
+export const generatePageTree = generatePageMap;
 
 export function flattenFileNodes(nodes: PageTreeNode[]): PageTreeFileNode[] {
   const files: PageTreeFileNode[] = [];

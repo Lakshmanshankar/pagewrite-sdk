@@ -1,0 +1,38 @@
+[
+  {
+    "id": "0a4ef9af-24dd-4751-aa10-b1f9cd1a771e",
+    "title": "Resume",
+    "slug": "resume"
+  },
+  {
+    "id": "fd93896a-da81-477f-8162-17e35d79b2c3",
+    "title": "Work",
+    "slug": "work",
+    "children": [
+      {
+        "id": "857aea0c-b2cd-4ad7-a4d3-4e6aecdfddaa",
+        "title": "CodeVantage SWE",
+        "slug": "work/work-codevantage-swe"
+      }
+    ]
+  },
+  {
+    "id": "fea62c14-abe5-47e1-a84d-6ed94823c123",
+    "title": "Blog",
+    "slug": "blog",
+    "children": [
+      {
+        "id": "a950c3ea-d067-4b35-84ec-d2e0b99f7946",
+        "title": "2025",
+        "slug": "blog/2025",
+        "children": [
+          {
+            "id": "031f787d-93ab-4eec-9501-3424caa89c19",
+            "title": "TS Monorepo Tailwind Shadcn",
+            "slug": "blog/2025/ts-monorepo-tailwind-shadcn"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "0a4ef9af-24dd-4751-aa10-b1f9cd1a771e": {
+    "title": "Resume",
+    "description": "Professional Resume",
+    "pageStatus": "published",
+    "lastModified": "2026-01-15T00:00:00Z"
+  },
+  "fd93896a-da81-477f-8162-17e35d79b2c3": {
+    "title": "Work Experience",
+    "pageStatus": "published"
+  },
+  "857aea0c-b2cd-4ad7-a4d3-4e6aecdfddaa": {
+    "title": "CodeVantage SWE",
+    "tags": ["full-stack", "typescript"],
+    "pageStatus": "published"
+  },
+  "031f787d-93ab-4eec-9501-3424caa89c19": {
+    "title": "TS Monorepo Tailwind Shadcn",
+    "date": "2025-05-10",
+    "author": "Lakshmanshankar",
+    "pageStatus": "published"
+  }
+}

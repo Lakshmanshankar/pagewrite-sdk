@@ -1,6 +1,7 @@
 
 dist/
 
+src/content/
 src/content/docs/
 
 # generated types

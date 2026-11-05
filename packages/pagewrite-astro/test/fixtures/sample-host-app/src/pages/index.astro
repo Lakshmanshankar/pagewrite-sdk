@@ -1,0 +1,47 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import type {
+  SiteSettings,
+  Navbar,
+  Footer,
+  PageLink,
+  PageTree,
+  PageData,
+  SiteSchemaDefinition,
+} from "pagewrite-astro/collections";
+
+const siteEntry = await getEntry("siteSettings", "site");
+const allLinks = await getCollection("pageLinks");
+const allPageTrees = await getCollection("pageTree");
+const allPageData = await getCollection("pageData");
+const allSchemas = await getCollection("siteSchema");
+
+const site: SiteSettings | undefined = siteEntry?.data;
+const navbar: Navbar | undefined = site?.navbar;
+const footer: Footer | undefined = site?.footer;
+const firstLink: PageLink | undefined = allLinks[0]?.data;
+const firstTree: PageTree | undefined = allPageTrees[0]?.data;
+const firstPageData: PageData | undefined = allPageData[0]?.data;
+const firstSchema: SiteSchemaDefinition | undefined = allSchemas[0]?.data;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{site?.siteName ?? navbar?.title ?? "Sample App"}</title>
+  </head>
+  <body>
+    <h1>{site?.siteName ?? navbar?.title}</h1>
+    <p>{footer?.copyright}</p>
+    <p>Total pageLinks: {allLinks.length}</p>
+    <p>Total pageTrees: {allPageTrees.length}</p>
+    <p>Total pageData: {allPageData.length}</p>
+    <p>Total schemas: {allSchemas.length}</p>
+    <p>First link slug: {firstLink?.slug}</p>
+    <p>First tree title: {firstTree?.title}</p>
+    <p>First tree first child: {firstTree?.children?.[0]?.title}</p>
+    <p>First pageData title: {firstPageData?.title}</p>
+    <p>First schema name: {firstSchema?.name}</p>
+  </body>
+</html>
