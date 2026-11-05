@@ -403,4 +403,10 @@ describe("Collection exports and loaders", () => {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
+
+  it("exports pagewriteAstro as a named export from root entry without virtual module issues", async () => {
+    const rootModule = await import("../src/index.js");
+    expect(typeof rootModule.pagewriteAstro).toBe("function");
+    expect(rootModule.collections).toBeDefined();
+  });
 });

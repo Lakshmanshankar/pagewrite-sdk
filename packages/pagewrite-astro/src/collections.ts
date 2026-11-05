@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { defineCollection } from "astro:content";
+import { defineCollection } from "astro/content/config";
 import { file } from "astro/loaders";
 import {
   siteSettingsSchema,

@@ -35,7 +35,7 @@ Configure the integration before content-related integrations in `astro.config.m
 ```js
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
-import pagewriteAstro from "pagewrite-astro";
+import { pagewriteAstro } from "pagewrite-astro";
 
 import { loadEnv } from "vite";
 const env = loadEnv(process.env.NODE_ENV!, process.cwd(), "");

@@ -115,7 +115,7 @@ export {
   siteSettings,
 } from "./collections.js";
 
-export default function pagewriteAstro(options: RemoteMdxOptions): AstroIntegration {
+export function pagewriteAstro(options: RemoteMdxOptions): AstroIntegration {
   return remoteMdx(options);
 }
 
