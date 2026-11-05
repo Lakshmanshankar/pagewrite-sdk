@@ -96,7 +96,7 @@ Optimized image component that replaces standard markdown images to include styl
 | :-------- | :------- | :----------- | :----------------------------------------- |
 | `src`     | `string` | _(required)_ | Image source URL.                          |
 | `alt`     | `string` | _(required)_ | Accessibility text.                        |
-| `caption` | `string` | `-`          | A text caption rendered beneath the image. |
+| `caption` | `string` | `-`          | A caption rendered beneath the image. Supports Markdown links like `[text](url)` and slots. |
 
 ### `Spacer`
 

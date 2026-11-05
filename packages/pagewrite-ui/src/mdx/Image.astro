@@ -23,95 +23,104 @@ const {
   class: className = "",
 } = Astro.props;
 
-const alignmentClass =
-  alignment === "left" ? "justify-start" : alignment === "right" ? "justify-end" : "justify-center";
+const px = (v?: number | string) => (typeof v === "number" ? `${v}px` : v);
+const justify = { left: "start", center: "center", right: "end" }[alignment];
+const style = [
+  maxWidth && `max-width:${px(maxWidth)}`,
+  width && `width:${px(width)}`,
+  height && `height:${px(height)}`,
+]
+  .filter(Boolean)
+  .join(";");
 
-const imageStyle: Record<string, string> = {};
-if (maxWidth) imageStyle.maxWidth = typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth;
-if (width) imageStyle.width = typeof width === "number" ? `${width}px` : width;
-if (height) imageStyle.height = typeof height === "number" ? `${height}px` : height;
+const imgAttrs = {
+  alt: altText,
+  style,
+  width: typeof width === "number" ? width : undefined,
+  height: typeof height === "number" ? height : undefined,
+  loading: "lazy" as const,
+};
+
+// Splits caption into text and links: [text](url) or <a href="url">text</a>
+const linkRegex = /\[([^\]]+)\]\(([^\s)]+)\)|<a\s[^>]*?href=["']([^"']*)["'][^>]*>(.*?)<\/a>/gi;
+const parts: { text: string; href?: string }[] = [];
+let last = 0;
+for (const m of caption.matchAll(linkRegex)) {
+  if (m.index! > last) parts.push({ text: caption.slice(last, m.index) });
+  parts.push({ text: m[1] ?? m[4], href: m[2] ?? m[3] });
+  last = m.index! + m[0].length;
+}
+if (last < caption.length) parts.push({ text: caption.slice(last) });
+
+const isExternal = (href: string) => /^https?:\/\//i.test(href);
+const hasCaption = Astro.slots.has("caption") || parts.length > 0;
 ---
 
-<div
-  class={`img-container flex ${alignmentClass} ${className}`.trim()}
-  data-has-dark-mode={darkModeSrc ? "true" : "false"}
->
+<div class={`img-container ${className}`.trim()} style={`justify-content:${justify}`}>
   <figure class="img-figure">
     <div class="img-frame">
-      <img
-        src={src}
-        alt={altText}
-        data-theme="light"
-        class="img-theme-image"
-        style={imageStyle}
-        width={typeof width === "number" ? width : undefined}
-        height={typeof height === "number" ? height : undefined}
-        loading="lazy"
-      />
-      {
-        darkModeSrc && (
-          <img
-            src={darkModeSrc}
-            alt={altText}
-            data-theme="dark"
-            class="img-theme-image"
-            style={imageStyle}
-            width={typeof width === "number" ? width : undefined}
-            height={typeof height === "number" ? height : undefined}
-            loading="lazy"
-          />
-        )
-      }
+      <img src={src} class:list={["img-light", { "has-dark": darkModeSrc }]} {...imgAttrs} />
+      {darkModeSrc && <img src={darkModeSrc} class="img-dark" {...imgAttrs} />}
     </div>
-    {caption && <figcaption class="img-caption">{caption}</figcaption>}
+    {
+      hasCaption && (
+        <figcaption class="img-caption">
+          {Astro.slots.has("caption") ? (
+            <slot name="caption" />
+          ) : (
+            parts.map((p) =>
+              p.href ? (
+                <a
+                  href={p.href}
+                  target={isExternal(p.href) ? "_blank" : undefined}
+                  rel={isExternal(p.href) ? "noopener noreferrer" : undefined}
+                >
+                  {p.text}
+                </a>
+              ) : (
+                p.text
+              )
+            )
+          )}
+        </figcaption>
+      )
+    }
   </figure>
 </div>
 
 <style>
   .img-container {
+    display: flex;
     margin: 2rem 0;
   }
-
   .img-figure {
     margin: 0;
     max-width: 100%;
   }
-
   .img-frame {
-    position: relative;
     overflow: hidden;
     border: 1px solid var(--border-strong);
     border-radius: 1.25rem;
     background:
-      radial-gradient(
-        circle at top left,
-        color-mix(in srgb, var(--accent) 12%, transparent),
-        transparent 36%
-      ),
+      radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 12%, transparent), transparent 36%),
       var(--panel-bg-strong);
     box-shadow: var(--shadow-soft);
   }
-
-  .img-theme-image {
+  img {
     display: block;
     width: 100%;
     height: auto;
   }
 
-  .img-theme-image[data-theme="dark"] {
+  /* Dark image is hidden by default; swap only when a dark variant exists */
+  .img-dark {
     display: none;
   }
-
-  :global(html:not(.light)) .img-theme-image[data-theme="light"] {
+  :global(html:not(.light)) .img-light.has-dark {
     display: none;
   }
-
-  :global(html:not(.light)) .img-theme-image[data-theme="dark"] {
+  :global(html:not(.light)) .img-dark {
     display: block;
-  }
-
-  [data-has-dark-mode="false"] .img-theme-image[data-theme="light"] {
-    display: block !important;
   }
 
   .img-caption {
@@ -119,5 +128,16 @@ if (height) imageStyle.height = typeof height === "number" ? `${height}px` : hei
     color: var(--text-muted);
     font-size: 0.95rem;
     text-align: center;
+  }
+  .img-caption :global(a) {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    transition: color 150ms ease, text-decoration-color 150ms ease;
+  }
+  .img-caption :global(a:hover) {
+    color: var(--text-title);
+    text-decoration-color: currentColor;
   }
 </style>
