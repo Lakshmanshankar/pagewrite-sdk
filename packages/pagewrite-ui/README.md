@@ -44,6 +44,9 @@ import { Callout, Image, Spacer } from "pagewrite-ui/mdx";
 
 // SVG Icons
 import { ChatGPT, Claude, Gemini, Github } from "pagewrite-ui/icons";
+
+// Unified Plugins (Remark / Rehype)
+import { remarkTableWidths, rehypeTableWidths } from "pagewrite-ui/unified";
 ---
 ```
 
