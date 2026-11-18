@@ -9,6 +9,10 @@
     "./docs": "./src/docs/index.ts",
     "./mdx": "./src/mdx/index.ts",
     "./icons": "./src/icons/index.ts",
+    "./unified": "./src/unified/index.ts",
+    "./unified/remark": "./src/unified/remark.ts",
+    "./unified/rehype": "./src/unified/rehype.ts",
+    "./unified/*": "./src/unified/*",
     "./styles/*": "./src/styles/*"
   },
   "peerDependencies": {
@@ -17,5 +21,8 @@
   "devDependencies": {
     "astro": "^5.0.0",
     "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@slorber/remark-comment": "^1.0.0"
   }
 }

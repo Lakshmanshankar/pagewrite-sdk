@@ -92,10 +92,10 @@ Highlights a block of content with distinct visual styling.
 
 Optimized image component that replaces standard markdown images to include styling and captions.
 
-| Prop      | Type     | Default      | Description                                |
-| :-------- | :------- | :----------- | :----------------------------------------- |
-| `src`     | `string` | _(required)_ | Image source URL.                          |
-| `alt`     | `string` | _(required)_ | Accessibility text.                        |
+| Prop      | Type     | Default      | Description                                                                                 |
+| :-------- | :------- | :----------- | :------------------------------------------------------------------------------------------ |
+| `src`     | `string` | _(required)_ | Image source URL.                                                                           |
+| `alt`     | `string` | _(required)_ | Accessibility text.                                                                         |
 | `caption` | `string` | `-`          | A caption rendered beneath the image. Supports Markdown links like `[text](url)` and slots. |
 
 ### `Spacer`
@@ -116,3 +116,13 @@ A collection of lightweight SVG icon components.
 | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Available Icons** | `ArrowTopRight`, `BlueSky`, `ChatGPT`, `ChevronLeft`, `ChevronRight`, `Claude`, `Gemini`, `Github`, `Leetcode`, `LinkedIn`, `Markdown`, `Medium`, `Twitter_X`               |
 | **Props**           | They generally accept any standard HTML/SVG attributes such as a `class` _(string)_ prop for Tailwind styling and sizing (e.g. `<Github class="w-5 h-5 text-gray-500" />`). |
+
+---
+
+## 5. Unified Plugins (`pagewrite-ui/unified`)
+
+Remark and Rehype plugins for processing Pagewrite content, such as preserving HTML comments in MDX and applying table column widths. You can import them from `pagewrite-ui/unified` or from `pagewrite-ui/unified/remark` and `pagewrite-ui/unified/rehype`.
+
+- **`remarkPreserveComments`** (`pagewrite-ui/unified/remark`): Remark plugin to ensure HTML comments in MDX are preserved in the AST.
+- **`remarkTableWidths`** (`pagewrite-ui/unified/remark`): Combined remark plugins to support HTML comments (`<!-- ... -->`) in MDX.
+- **`rehypeTableWidths`** (`pagewrite-ui/unified/rehype`): Rehype plugin (default export) that extracts `<!-- col-widths: ... -->` comments preceding tables and attaches column width attributes/styles.
