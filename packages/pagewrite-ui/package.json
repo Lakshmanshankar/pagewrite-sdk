@@ -1,17 +1,40 @@
 {
   "name": "pagewrite-ui",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "UI components and utilities for Astro",
   "type": "module",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "USAGE.md"
+  ],
+  "scripts": {
+    "build": "pnpm run clean && tsc -p tsconfig.build.json",
+    "clean": "node -e 'fs.rmSync(\"dist\", { recursive: true, force: true })'",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
     "./docs": "./src/docs/index.ts",
     "./mdx": "./src/mdx/index.ts",
     "./icons": "./src/icons/index.ts",
-    "./unified": "./src/unified/index.ts",
-    "./unified/remark": "./src/unified/remark.ts",
-    "./unified/rehype": "./src/unified/rehype.ts",
+    "./unified": {
+      "types": "./dist/unified/index.d.ts",
+      "import": "./dist/unified/index.js",
+      "default": "./dist/unified/index.js"
+    },
+    "./unified/remark": {
+      "types": "./dist/unified/remark.d.ts",
+      "import": "./dist/unified/remark.js",
+      "default": "./dist/unified/remark.js"
+    },
+    "./unified/rehype": {
+      "types": "./dist/unified/rehype.d.ts",
+      "import": "./dist/unified/rehype.js",
+      "default": "./dist/unified/rehype.js"
+    },
     "./unified/*": "./src/unified/*",
     "./styles/*": "./src/styles/*"
   },
